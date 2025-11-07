@@ -2,6 +2,6 @@
 Xccelerated training project
 
 ## Contributors
-Leonardo Amaro Drigo
-Konrad Van Kempen
-Elif Apaydin
+- Leonardo Amaro Drigo
+- Konrad Van Kempen
+- Elif Apaydin
