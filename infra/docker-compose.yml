@@ -20,7 +20,8 @@ services:
       start_period: 80s
 
   minio:
-    image: docker.io/bitnami/minio:2022
+    image:  minio/minio
+    container_name: goatminio
     ports:
       - '9000:9000'
       - '9001:9001'
@@ -30,6 +31,7 @@ services:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
       - MINIO_DEFAULT_BUCKETS=${MINIO_DEFAULT_BUCKETS}
+    command: server /data --console-address ":9001"
 
 volumes:
   pg_data:
