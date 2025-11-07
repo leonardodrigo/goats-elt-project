@@ -4,7 +4,12 @@ version = "0.1.0"
 description = "ELT Project"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "minio>=7.2.18",
+    "requests>=2.32.5",
+    "spotipy>=2.25.1",
+    "typer>=0.20.0",
+]
 
 [dependency-groups]
 dev = [
