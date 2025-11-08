@@ -1,0 +1,7 @@
+project_root_path = "/Users/elif/Documents/xccelerated/goats-elt-project"
+network_name = "elt_net"
+minio_user = "admin"
+minio_pass = "<enterminiopassword>"
+db_user = "admin"
+db_pass = "<enterdbpassword>"
+db_name = "goats_elt"

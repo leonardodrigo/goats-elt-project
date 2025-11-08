@@ -1,0 +1,53 @@
+version: "3"
+
+silent: true
+
+dotenv: ['.env']
+
+vars:
+  ENVIRONMENT: prod
+  LOCATION: europe-west4
+  PROJECT_ID: ae-dbt-ci-2025
+  REPOSITORY: ae-dbt-ci-images
+  TARGET_IMAGE: dbt-ci
+  TAG: latest
+
+tasks:
+  env:set:
+    desc: "Set environment variables from .env file downstream"
+    cmds: 
+      - "set -a; source .env; set +a"
+
+  gcloud:auth:
+    desc: "Authenticate with Google Cloud"
+    cmds:
+      - echo "Authenticating with Google Cloud..."
+      - gcloud auth application-default login
+
+  docker:build:
+      desc: "Build Docker image"
+      vars:
+        CURRENT_PWD:
+          sh: pwd
+        LOCAL_IMAGE: dbt-ci
+      cmds:
+        - echo "Current directory -> {{.CURRENT_PWD}}"
+        - echo "Building Docker image..."
+        - docker build -t {{.LOCAL_IMAGE}} .
+
+  docker:push:
+    deps:
+      - docker:build
+    vars:
+      LOCAL_IMAGE: dbt-ci
+      TARGET_IMAGE: dbt-ci
+      TAGS:
+        - latest
+        - dockerizing
+    cmds:
+      - echo "Pushing Docker image to Artifact Registry..."
+      - task gcloud:auth
+      - gcloud auth configure-docker {{.LOCATION}}-docker.pkg.dev
+      - for: { var: TAGS, as: TAG }
+        cmd: docker tag {{.LOCAL_IMAGE}} {{.LOCATION}}-docker.pkg.dev/{{.PROJECT_ID}}/{{.REPOSITORY}}/{{.TARGET_IMAGE}}:{{.TAG}}
+      - docker push --all-tags {{.LOCATION}}-docker.pkg.dev/{{.PROJECT_ID}}/{{.REPOSITORY}}/{{.TARGET_IMAGE}}
