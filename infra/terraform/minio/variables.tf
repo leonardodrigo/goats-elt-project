@@ -1,10 +1,10 @@
 variable "minio_user" {
-    type = string
+  type = string
 }
 
 variable "minio_pass" {
-    type = string
-    sensitive = true
+  type      = string
+  sensitive = true
 }
 
 variable "network_name" {

@@ -10,12 +10,12 @@ terraform {
 resource "docker_image" "elt-image" {
   name = "elt-image"
   build {
-    context = var.project_root_path
+    context    = var.project_root_path
     dockerfile = "infra/Dockerfile"
   }
-#   triggers = {
-#     dir_sha1 = sha1(join("", [for f in fileset(var.project_root_path, "src/*") : filesha1(f)]))
-#   }
+  #   triggers = {
+  #     dir_sha1 = sha1(join("", [for f in fileset(var.project_root_path, "src/*") : filesha1(f)]))
+  #   }
 }
 
 resource "docker_container" "elt-container" {
@@ -35,5 +35,5 @@ resource "docker_container" "elt-container" {
 }
 
 output "docker_image_id" {
-    value = docker_image.elt-image.image_id
+  value = docker_image.elt-image.image_id
 }

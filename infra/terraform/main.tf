@@ -31,10 +31,10 @@ module "minio" {
 }
 
 module "app" {
-  source               = "./app"
-  project_root_path    = var.project_root_path
-  network_name         = module.network.network_name
-  db_user              = var.db_user
-  db_pass              = var.db_pass
-  db_name              = var.db_name
+  source            = "./app"
+  project_root_path = var.project_root_path
+  network_name      = module.network.network_name
+  db_user           = var.db_user
+  db_pass           = var.db_pass
+  db_name           = var.db_name
 }
