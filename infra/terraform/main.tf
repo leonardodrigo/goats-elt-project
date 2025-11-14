@@ -32,6 +32,7 @@ module "minio" {
 
 module "app" {
   source               = "./app"
+  depends_on = [ module.minio, module.db ]
   project_root_path    = var.project_root_path
   network_name         = module.network.network_name
   db_user              = var.db_user
@@ -43,4 +44,8 @@ module "app" {
   spotify_client_id    = var.spotify_client_id
   spotify_client_secret= var.spotify_client_secret
   spotify_redirect_uri = var.spotify_redirect_uri
+}
+
+output "spotify_redirect_uri" {
+  value = var.spotify_redirect_uri
 }

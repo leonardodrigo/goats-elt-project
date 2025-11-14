@@ -25,7 +25,7 @@ tasks:
       - "terraform init"
 
   tf:apply:
-    desc: "Terraform apply"
+    desc: "Terraform apply. Run this to start your infra (docker containers etc.)"
     dir: infra/terraform
     cmds:
       - "terraform apply -auto-approve"
