@@ -1,10 +1,23 @@
 terraform {
+  backend "gcs" {
+    bucket = "goats-elt-tfstate"
+    prefix = "gcp/dev"
+  }
   required_providers {
+    google = {
+      source = "hashicorp/google"
+      version = "6.8.0"
+    }
     docker = {
       source  = "kreuzwerker/docker"
       version = ">= 2.20.0"
     }
   }
+}
+
+provider "google" {
+  project = var.project_id
+  region  = var.region
 }
 
 provider "docker" {
@@ -48,4 +61,13 @@ module "app" {
 
 output "spotify_redirect_uri" {
   value = var.spotify_redirect_uri
+}
+
+module "gcp" {
+  source = "./gcp"
+  project_id = var.project_id
+  region = var.region
+  location = var.location
+  environment = var.environment
+
 }
