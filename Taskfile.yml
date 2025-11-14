@@ -15,25 +15,25 @@ vars:
 tasks:
   env:set:
     desc: "Set environment variables from .env file downstream"
-    cmds: 
+    cmds:
       - "set -a; source .env; set +a"
 
   tf:init:
     desc: "Terraform initialize"
     dir: infra/terraform
-    cmds: 
+    cmds:
       - "terraform init"
 
   tf:apply:
     desc: "Terraform apply"
     dir: infra/terraform
-    cmds: 
+    cmds:
       - "terraform apply -auto-approve"
 
   tf:destroy:
     desc: "Terraform destroy"
     dir: infra/terraform
-    cmds: 
+    cmds:
       - "terraform destroy -auto-approve"
 
   gcloud:auth:

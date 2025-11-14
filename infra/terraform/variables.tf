@@ -23,7 +23,7 @@ variable "db_name" {
 }
 
 variable "minio_root_user" {
-    type = string 
+    type = string
 }
 
 variable "minio_root_password" {
