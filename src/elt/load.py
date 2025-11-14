@@ -8,10 +8,10 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "localhost:9000")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
-MINIO_BUCKET = os.getenv("MINIO_BUCKET", "spotify-data")
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
+MINIO_BUCKET = os.getenv("MINIO_BUCKET")
 
 
 class StorageContext:
@@ -33,9 +33,7 @@ def create_bucket(context: StorageContext) -> None:
         raise
 
 
-def load_data_to_bucket(
-    context: StorageContext, object_name: str, data: dict
-) -> None:
+def load_data_to_bucket(context: StorageContext, object_name: str, data: dict) -> None:
     try:
         json_data = json.dumps(data, indent=2)
         data_stream = io.BytesIO(json_data.encode("utf-8"))
@@ -55,7 +53,7 @@ def load_data_to_bucket(
             load_data_to_bucket(context, object_name, data)
 
 
-def handler(data: dict):    
+def handler(data: dict):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     object_name = f"tracks_{timestamp}.json"
 

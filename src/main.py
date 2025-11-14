@@ -22,8 +22,8 @@ logging.basicConfig(
 @app.command()
 def run():
     logger.info("Starting ELT process...")
-    from elt.extract import handler as extract_handler
-    from elt.load import handler as load_handler
+    from src.elt.extract import handler as extract_handler
+    from src.elt.load import handler as load_handler
 
     logger.info("Extracting data from Spotify...")
     spotify_data = extract_handler()
@@ -34,10 +34,12 @@ def run():
     logger.info("ELT process completed successfully")
 
 
-@app.command()
-def main():
-    app()
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context):
+    """Default command that runs the ELT process."""
+    if ctx.invoked_subcommand is None:
+        run()
 
 
 if __name__ == "__main__":
-    main()
+    app()
