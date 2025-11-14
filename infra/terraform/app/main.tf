@@ -10,7 +10,7 @@ terraform {
 resource "docker_image" "elt-image" {
   name = "elt-image"
   build {
-    context = var.project_root_path
+    context    = var.project_root_path
     dockerfile = "infra/terraform/app/Dockerfile"
   }
   #   triggers = {
@@ -33,5 +33,5 @@ resource "docker_container" "elt-container" {
 }
 
 output "docker_image_id" {
-    value = docker_image.elt-image.image_id
+  value = docker_image.elt-image.image_id
 }

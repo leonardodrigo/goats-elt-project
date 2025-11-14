@@ -5,7 +5,7 @@ terraform {
   }
   required_providers {
     google = {
-      source = "hashicorp/google"
+      source  = "hashicorp/google"
       version = "6.8.0"
     }
     docker = {
@@ -37,26 +37,26 @@ module "db" {
 }
 
 module "minio" {
-  source                = "./minio"
-  network_name          = module.network.network_name
-  minio_root_user       = var.minio_root_user
-  minio_root_password   = var.minio_root_password
+  source              = "./minio"
+  network_name        = module.network.network_name
+  minio_root_user     = var.minio_root_user
+  minio_root_password = var.minio_root_password
 }
 
 module "app" {
-  source               = "./app"
-  depends_on = [ module.minio, module.db ]
-  project_root_path    = var.project_root_path
-  network_name         = module.network.network_name
-  db_user              = var.db_user
-  db_pass              = var.db_pass
-  db_name              = var.db_name
-  minio_root_user      = var.minio_root_user
-  minio_root_password  = var.minio_root_password
-  minio_default_bucket = var.minio_default_bucket
-  spotify_client_id    = var.spotify_client_id
-  spotify_client_secret= var.spotify_client_secret
-  spotify_redirect_uri = var.spotify_redirect_uri
+  source                = "./app"
+  depends_on            = [module.minio, module.db]
+  project_root_path     = var.project_root_path
+  network_name          = module.network.network_name
+  db_user               = var.db_user
+  db_pass               = var.db_pass
+  db_name               = var.db_name
+  minio_root_user       = var.minio_root_user
+  minio_root_password   = var.minio_root_password
+  minio_default_bucket  = var.minio_default_bucket
+  spotify_client_id     = var.spotify_client_id
+  spotify_client_secret = var.spotify_client_secret
+  spotify_redirect_uri  = var.spotify_redirect_uri
 }
 
 output "spotify_redirect_uri" {
@@ -64,10 +64,10 @@ output "spotify_redirect_uri" {
 }
 
 module "gcp" {
-  source = "./gcp"
-  project_id = var.project_id
-  region = var.region
-  location = var.location
+  source      = "./gcp"
+  project_id  = var.project_id
+  region      = var.region
+  location    = var.location
   environment = var.environment
 
 }

@@ -23,28 +23,28 @@ variable "db_name" {
 }
 
 variable "minio_root_user" {
-    type = string
+  type = string
 }
 
 variable "minio_root_password" {
-    type = string
-    sensitive = true
+  type      = string
+  sensitive = true
 }
 
 variable "minio_default_bucket" {
-    type = string
+  type = string
 }
 
 variable "spotify_client_id" {
-    type = string
+  type = string
 }
 
 variable "spotify_client_secret" {
-    type = string
+  type = string
 }
 
 variable "spotify_redirect_uri" {
-    type = string
+  type = string
 }
 
 variable "project_id" {
