@@ -10,7 +10,8 @@ terraform {
 resource "docker_image" "elt-image" {
   name = "elt-image"
   build {
-    context = "${var.project_root_path}/infra"
+    context = var.project_root_path
+    dockerfile = "infra/Dockerfile"
   }
 #   triggers = {
 #     dir_sha1 = sha1(join("", [for f in fileset(var.project_root_path, "src/*") : filesha1(f)]))

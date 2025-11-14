@@ -8,7 +8,7 @@ terraform {
 }
 
 resource "docker_container" "postgres" {
-  name  = "tf_elt_postgres"
+  name  = "postgres"
   image = "postgres:15"
   env = [
     "POSTGRES_USER=${var.db_user}",
