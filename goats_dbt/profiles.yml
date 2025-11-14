@@ -1,0 +1,12 @@
+goats_inc:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      user: myuser
+      password: mypassword
+      port: 5432
+      dbname: goats_elt # or database instead of dbname
+      schema: public
+      threads: 1
