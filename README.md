@@ -5,3 +5,4 @@ Xccelerated training project
 - Leonardo Amaro Drigo
 - Konrad Van Kempen
 - Elif Apaydin
+- Jelle Willekes
