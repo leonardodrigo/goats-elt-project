@@ -1,8 +1,7 @@
 version: 2
 
 sources:
-  - name: my_postgres
+  - name: goats_elt
     schema: public
     tables:
-      - name: customers
-      - name: orders
+      - name: spotify_plays_raw
