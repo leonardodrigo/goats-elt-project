@@ -1,8 +1,8 @@
-variable "minio_user" {
+variable "minio_root_user" {
     type = string
 }
 
-variable "minio_pass" {
+variable "minio_root_password" {
     type = string
     sensitive = true
 }
