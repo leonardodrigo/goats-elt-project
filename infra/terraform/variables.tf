@@ -23,26 +23,50 @@ variable "db_name" {
 }
 
 variable "minio_root_user" {
-    type = string
+  type = string
 }
 
 variable "minio_root_password" {
-    type = string
-    sensitive = true
+  type      = string
+  sensitive = true
 }
 
 variable "minio_default_bucket" {
-    type = string
+  type = string
 }
 
 variable "spotify_client_id" {
-    type = string
+  type = string
 }
 
 variable "spotify_client_secret" {
-    type = string
+  type = string
 }
 
 variable "spotify_redirect_uri" {
-    type = string
+  type = string
+}
+
+variable "project_id" {
+  description = "GCP project ID."
+  type        = string
+  default     = "goats-elt-project-478211"
+}
+
+variable "region" {
+  description = "Default compute region."
+  type        = string
+  default     = "europe-west4"
+}
+
+variable "location" {
+  description = "Default location for storage/BigQuery."
+  type        = string
+  default     = "EU"
+}
+
+variable "environment" {
+  description = "Environment label (e.g. dev, prod)."
+  type        = string
+  default     = "dev"
 }
