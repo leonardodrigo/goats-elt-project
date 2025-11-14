@@ -27,5 +27,5 @@ RUN uv sync --locked --no-dev
 # Install the project as a package
 RUN uv pip install -e .
 
-# Run the CLI module using Python's -m flag
-CMD ["uv", "run", "goats-elt"]
+# Run the ETL process
+CMD ["uv", "run", "src/main.py", "run"]

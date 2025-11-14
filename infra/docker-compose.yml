@@ -30,21 +30,27 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-      - MINIO_DEFAULT_BUCKETS=${MINIO_DEFAULT_BUCKETS}
+      - MINIO_DEFAULT_BUCKET=${MINIO_DEFAULT_BUCKET}
     command: server /data --console-address ":9001"
 
   elt-service:
     build:
       context: ../
       dockerfile: infra/Dockerfile
-    ports:
-      - "8080:8080"
+    image: goats-elt:latest
+    container_name: elt
+    depends_on:
+      - postgres
+      - minio
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/goats_elt
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
-      - MINIO_BUCKET=${MINIO_DEFAULT_BUCKETS}
+      - MINIO_BUCKET=${MINIO_DEFAULT_BUCKET}
+      - SPOTIPY_CLIENT_ID=${SPOTIPY_CLIENT_ID}
+      - SPOTIPY_CLIENT_SECRET=${SPOTIPY_CLIENT_SECRET}
+      - SPOTIPY_REDIRECT_URI=${SPOTIPY_REDIRECT_URI}
 
 volumes:
   pg_data:
