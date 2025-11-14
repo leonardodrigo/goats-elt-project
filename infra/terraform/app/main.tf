@@ -13,9 +13,9 @@ resource "docker_image" "elt-image" {
     context = var.project_root_path
     dockerfile = "infra/terraform/app/Dockerfile"
   }
-#   triggers = {
-#     dir_sha1 = sha1(join("", [for f in fileset(var.project_root_path, "src/*") : filesha1(f)]))
-#   }
+  #   triggers = {
+  #     dir_sha1 = sha1(join("", [for f in fileset(var.project_root_path, "src/*") : filesha1(f)]))
+  #   }
 }
 
 resource "docker_container" "elt-container" {
