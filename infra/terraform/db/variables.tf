@@ -12,5 +12,5 @@ variable "db_name" {
 }
 
 variable "network_name" {
-  type = string
+    type = string
 }
