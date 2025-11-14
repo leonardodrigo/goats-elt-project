@@ -24,10 +24,10 @@ module "db" {
 }
 
 module "minio" {
-  source       = "./minio"
-  network_name = module.network.network_name
-  minio_user   = var.minio_user
-  minio_pass   = var.minio_pass
+  source                = "./minio"
+  network_name          = module.network.network_name
+  minio_root_user       = var.minio_root_user
+  minio_root_password   = var.minio_root_password
 }
 
 module "app" {
@@ -37,4 +37,10 @@ module "app" {
   db_user              = var.db_user
   db_pass              = var.db_pass
   db_name              = var.db_name
+  minio_root_user      = var.minio_root_user
+  minio_root_password  = var.minio_root_password
+  minio_default_bucket = var.minio_default_bucket
+  spotify_client_id    = var.spotify_client_id
+  spotify_client_secret= var.spotify_client_secret
+  spotify_redirect_uri = var.spotify_redirect_uri
 }
