@@ -231,3 +231,15 @@ __marimo__/
 **/terraform.rc
 
 # End of https://www.toptal.com/developers/gitignore/api/terraform
+
+# Ignore Airflow files
+src/airflow/logs/
+src/airflow/dags/__pycache__/
+src/airflow/plugins/__pycache__/
+src/airflow/__pycache__/
+src/airflow/config/
+
+# Temp files
+*.pyc
+*.pyo
+*.swp

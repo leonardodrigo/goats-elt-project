@@ -1,27 +1,28 @@
-name: goats-elt-project
-services:
+name: goats-elt
+services:  
   postgres:
     image: postgres:17.0
+    container_name: postgres
     restart: always
     shm_size: 128mb
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: goats_elt
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data     # Named volume
+      - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "goats_elt"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 15s
       timeout: 5s
       retries: 5
       start_period: 80s
-
+  
   minio:
-    image:  minio/minio
-    container_name: goatminio
+    image: minio/minio
+    container_name: minio
     ports:
       - '9000:9000'
       - '9001:9001'
@@ -32,19 +33,28 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
       - MINIO_DEFAULT_BUCKET=${MINIO_DEFAULT_BUCKET}
     command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   elt-service:
     build:
       context: ../
-      dockerfile: infra/Dockerfile
-    image: goats-elt:latest
+      dockerfile: infra/Dockerfile.elt
     container_name: elt
+    ports:
+      - '8080:8080'
     depends_on:
-      - postgres
-      - minio
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
     environment:
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/goats_elt
-      - MINIO_ENDPOINT=minio:9000
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
       - MINIO_BUCKET=${MINIO_DEFAULT_BUCKET}
