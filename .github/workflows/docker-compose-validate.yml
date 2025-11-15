@@ -19,7 +19,7 @@ jobs:
       - name: Prepare env file
         working-directory: infra
         run: |
-          if [ -f .env.example ]; then
+          if [ -f infra/.env.example ]; then
             cp infra/.env.example .env
           fi
 
