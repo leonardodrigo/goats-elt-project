@@ -20,7 +20,7 @@ jobs:
         working-directory: infra
         run: |
           if [ -f .env.example ]; then
-            cp .env.example .env
+            cp infra/.env.example .env
           fi
 
       - name: Validate docker compose config
