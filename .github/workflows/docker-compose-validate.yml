@@ -19,7 +19,7 @@ jobs:
       - name: Prepare env file
         run: |
           if [ -f infra/.env.example ]; then
-            cp infra/.env.example .env
+            cp infra/.env.example infra/.env
           fi
 
       - name: Validate Airflow
