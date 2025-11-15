@@ -24,5 +24,8 @@ jobs:
       - name: Install ruff via uv
         run: uv tool install ruff
 
-      - name: Run ruff
+      - name: Run ruff check
         run: uvx ruff check .
+      
+      - name: Run ruff format check
+        run: uvx ruff format --check .
