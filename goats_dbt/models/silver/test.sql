@@ -1,3 +1,4 @@
 {{ config(materialized="view") }}
 
-select 
+select *
+from {{ source('goats_elt', 'spotify_plays_raw') }}
