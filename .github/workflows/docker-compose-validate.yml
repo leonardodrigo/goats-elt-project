@@ -1,0 +1,28 @@
+name: Docker Compose Validate
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  validate-compose:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Check Docker is available
+        run: docker --version
+
+      - name: Prepare env file
+        working-directory: infra
+        run: |
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          fi
+
+      - name: Validate docker compose config
+        working-directory: infra
+        run: docker compose config

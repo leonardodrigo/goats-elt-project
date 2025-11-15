@@ -11,8 +11,8 @@ resource "docker_container" "goatminio" {
   name  = "goatminio"
   image = "minio/minio:latest"
   env = [
-    "MINIO_ROOT_USER=${var.minio_user}",
-    "MINIO_ROOT_PASSWORD=${var.minio_pass}"
+    "MINIO_ROOT_USER=${var.minio_root_user}",
+    "MINIO_ROOT_PASSWORD=${var.minio_root_password}"
   ]
   command = ["server", "/data", "--console-address", ":9001"]
   ports {

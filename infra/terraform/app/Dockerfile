@@ -20,4 +20,5 @@ RUN uv sync --locked --no-dev
 # Install the project as a package
 RUN uv pip install -e .
 
+# Run the ETL process
 CMD ["uv", "run", "goats-elt"]

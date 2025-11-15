@@ -43,7 +43,8 @@ services:
   elt-service:
     build:
       context: ../
-      dockerfile: infra/Dockerfile.elt
+      dockerfile: infra/terraform/app/Dockerfile
+    image: goats-elt:latest
     container_name: elt
     ports:
       - '8080:8080'
