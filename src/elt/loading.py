@@ -5,10 +5,10 @@ from db_helper import get_db_connection
 import os
 
 # ==== MinIO / S3 settings ====
-MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT","http://localhost:9000")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY","myuser")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY","mypassword")
-MINIO_BUCKET = os.getenv("MINIO_BUCKET","test")
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
+MINIO_BUCKET = os.getenv("MINIO_BUCKET")
 
 s3 = boto3.client(
     "s3",
@@ -91,4 +91,4 @@ def handler(object_name):
 
     mark_as_loaded(object_name)
 
-handler("test.json")
+    print("Loading done")

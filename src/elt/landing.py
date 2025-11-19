@@ -104,7 +104,7 @@ def handler(data: dict):
     load_data_to_bucket(ctx, object_name, data)
     logger.info("Data load process completed successfully")
 
-    """ Updates the log so that later can be checken when landing happened
+    """ Updates the log so that later can be checked when landing happened
     , but loading didn't """
     update_log_landed(object_name, timestamp)
     
