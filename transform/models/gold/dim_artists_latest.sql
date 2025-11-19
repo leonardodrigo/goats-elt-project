@@ -1,6 +1,7 @@
 {{ config(materialized='table')}}
 
 WITH all_artists AS (
+  SELECT
     artist_id,
     artist_name,
     artist_uri
