@@ -1,0 +1,12 @@
+postgres:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost #"{{ env_var('DB_HOST') }}"
+      user: myuser #"{{ env_var('POSTGRES_USER') }}"
+      password: mypassword  #"{{ env_var('POSTGRES_PASSWORD}') }}"
+      port: 5432
+      dbname: goats_elt #"{{ env_var('DATABASE_URL') }}"
+      schema: public
+      threads: 1
