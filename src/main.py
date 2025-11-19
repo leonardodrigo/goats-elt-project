@@ -23,13 +23,17 @@ logging.basicConfig(
 def run():
     logger.info("Starting ELT process...")
     from src.elt.extract import handler as extract_handler
+    from src.elt.landing import handler as landing_handler
     from src.elt.load import handler as load_handler
 
     logger.info("Extracting data from Spotify...")
     spotify_data = extract_handler()
 
-    logger.info("Loading data to MinIO...")
-    load_handler(spotify_data)
+    logger.info("Landing data in MinIO...")
+    object_name = landing_handler(spotify_data)
+
+    logger.info("Loading data into a postgres DB")
+    load_handler(object_name)
 
     logger.info("ELT process completed successfully")
 
