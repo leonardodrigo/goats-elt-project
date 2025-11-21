@@ -4,34 +4,40 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_california_housing
 
-st.set_page_config(page_title="California Housing EDA", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(
+    page_title="California Housing EDA", layout="wide", initial_sidebar_state="expanded"
+)
+
 
 @st.cache_data
 def load_data():
     data = fetch_california_housing(as_frame=True)
-    df = data.frame.rename(columns={
-        "MedInc": "Median_Income",
-        "HouseAge": "House_Age",
-        "AveRooms": "Avg_Rooms",
-        "AveBedrms": "Avg_Bedrooms",
-        "Population": "Population",
-        "AveOccup": "Avg_Occupancy",
-        "Latitude": "Latitude",
-        "Longitude": "Longitude",
-        "MedHouseVal": "Median_House_Value"
-    })
+    df = data.frame.rename(
+        columns={
+            "MedInc": "Median_Income",
+            "HouseAge": "House_Age",
+            "AveRooms": "Avg_Rooms",
+            "AveBedrms": "Avg_Bedrooms",
+            "Population": "Population",
+            "AveOccup": "Avg_Occupancy",
+            "Latitude": "Latitude",
+            "Longitude": "Longitude",
+            "MedHouseVal": "Median_House_Value",
+        }
+    )
 
     df["Region"] = pd.cut(
         df["Latitude"],
         bins=[df["Latitude"].min() - 0.01, 34, 37, df["Latitude"].max() + 0.01],
-        labels=["South", "Central", "North"]
+        labels=["South", "Central", "North"],
     )
     df["Coastal"] = pd.cut(
         df["Longitude"],
         bins=[df["Longitude"].min() - 0.01, -120, df["Longitude"].max() + 0.01],
-        labels=["Inland", "Coastal"]
+        labels=["Inland", "Coastal"],
     )
     return df
+
 
 df = load_data()
 numeric_cols = df.select_dtypes(include="number").columns.tolist()
@@ -41,9 +47,11 @@ st.title("California Housing Dataset — EDA Dashboard")
 
 st.sidebar.header("Filters")
 
+
 def slider_filter(df, col):
     m1, m2 = float(df[col].min()), float(df[col].max())
     return st.sidebar.slider(col.replace("_", " "), m1, m2, (m1, m2))
+
 
 filters = {col: slider_filter(df, col) for col in numeric_cols}
 
@@ -63,21 +71,29 @@ tab_overview, tab_dist, tab_rel, tab_groups, tab_map = st.tabs(
 
 with tab_overview:
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Median House Value (mean)", f"${filtered_df['Median_House_Value'].mean():,.2f}")
+    col1.metric(
+        "Median House Value (mean)", f"${filtered_df['Median_House_Value'].mean():,.2f}"
+    )
     col2.metric("Median Income (mean)", f"{filtered_df['Median_Income'].mean():.2f}")
     col3.metric("Avg House Age", f"{filtered_df['House_Age'].mean():.1f}")
     col4.metric("Avg Population", f"{filtered_df['Population'].mean():,.0f}")
     st.dataframe(filtered_df.head(20), width="stretch")
 
 with tab_dist:
-    dist_col = st.selectbox("Numeric column:", numeric_cols, index=numeric_cols.index("Median_House_Value"))
+    dist_col = st.selectbox(
+        "Numeric column:", numeric_cols, index=numeric_cols.index("Median_House_Value")
+    )
     fig, ax = plt.subplots(figsize=(8, 4))
     sns.histplot(filtered_df[dist_col], kde=True, ax=ax)
     st.pyplot(fig)
 
 with tab_rel:
-    x_col = st.selectbox("X-axis", numeric_cols, index=numeric_cols.index("Median_Income"))
-    y_col = st.selectbox("Y-axis", numeric_cols, index=numeric_cols.index("Median_House_Value"))
+    x_col = st.selectbox(
+        "X-axis", numeric_cols, index=numeric_cols.index("Median_Income")
+    )
+    y_col = st.selectbox(
+        "Y-axis", numeric_cols, index=numeric_cols.index("Median_House_Value")
+    )
     hue_options = [None] + categorical_cols
     hue_col = st.selectbox("Color by", hue_options)
 
@@ -97,17 +113,34 @@ with tab_rel:
     corr_cols = st.multiselect(
         "Correlation columns",
         numeric_cols,
-        default=["Median_House_Value", "Median_Income", "House_Age", "Avg_Rooms", "Avg_Bedrooms"]
+        default=[
+            "Median_House_Value",
+            "Median_Income",
+            "House_Age",
+            "Avg_Rooms",
+            "Avg_Bedrooms",
+        ],
     )
 
     if len(corr_cols) >= 2:
         fig3, ax3 = plt.subplots(figsize=(8, 6))
-        sns.heatmap(filtered_df[corr_cols].corr(), cmap="coolwarm", annot=True, fmt=".2f", ax=ax3)
+        sns.heatmap(
+            filtered_df[corr_cols].corr(),
+            cmap="coolwarm",
+            annot=True,
+            fmt=".2f",
+            ax=ax3,
+        )
         st.pyplot(fig3)
 
 with tab_groups:
-    gcol = st.selectbox("Group by", [c for c in categorical_cols if c in ["Region", "Coastal"]] or categorical_cols)
-    tcol = st.selectbox("Target", numeric_cols, index=numeric_cols.index("Median_House_Value"))
+    gcol = st.selectbox(
+        "Group by",
+        [c for c in categorical_cols if c in ["Region", "Coastal"]] or categorical_cols,
+    )
+    tcol = st.selectbox(
+        "Target", numeric_cols, index=numeric_cols.index("Median_House_Value")
+    )
     stats = filtered_df.groupby(gcol, observed=True)[tcol].mean().sort_values()
 
     fig4, ax4 = plt.subplots(figsize=(8, 4))
@@ -122,7 +155,9 @@ with tab_groups:
     st.pyplot(fig5)
 
 with tab_map:
-    map_df = filtered_df.rename(columns={"Latitude": "lat", "Longitude": "lon"})[["lat", "lon"]].dropna()
+    map_df = filtered_df.rename(columns={"Latitude": "lat", "Longitude": "lon"})[
+        ["lat", "lon"]
+    ].dropna()
     if len(map_df) > 1000:
         map_df = map_df.sample(1000, random_state=42)
     st.map(map_df)
