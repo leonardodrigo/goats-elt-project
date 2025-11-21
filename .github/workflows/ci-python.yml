@@ -25,6 +25,9 @@ jobs:
 
       - name: Install project dependencies (uv sync)
         run: uv sync --all-extras
+      
+      - name: Check uv.lock
+        run: uv lock --check
 
       - name: Run tests
         run: |

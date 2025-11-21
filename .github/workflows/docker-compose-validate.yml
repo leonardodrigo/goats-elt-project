@@ -17,12 +17,13 @@ jobs:
         run: docker --version
 
       - name: Prepare env file
-        working-directory: infra
         run: |
-          if [ -f .env.example ]; then
-            cp .env.example .env
+          if [ -f infra/.env.example ]; then
+            cp infra/.env.example infra/.env
           fi
 
-      - name: Validate docker compose config
-        working-directory: infra
-        run: docker compose config
+      - name: Validate Airflow
+        run: docker compose -f infra/docker-compose.airflow.yml config
+
+      - name: Validate ELT
+        run: docker compose -f infra/docker-compose.elt.yml config
