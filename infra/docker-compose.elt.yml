@@ -1,8 +1,8 @@
 name: goats-elt
-services:  
-  postgres:
+services:
+  postgres-dwh:
     image: postgres:17.0
-    container_name: postgres
+    container_name: postgres-dwh
     restart: always
     shm_size: 128mb
     environment:
@@ -78,7 +78,7 @@ services:
     networks:
       - elt_internal
       - shared_net  # Communicate with Airflow via HTTP (reverse proxy would be better but this is simpler for now)
-  
+
   broker:
     image: apache/kafka:latest
     hostname: elt-broker
@@ -103,7 +103,7 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     networks:
       - elt_internal
-  
+
   kafka-init:
     image: apache/kafka:latest
     container_name: kafka-init
