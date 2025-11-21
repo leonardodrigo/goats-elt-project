@@ -15,7 +15,6 @@ check_goats_api = HttpOperator(
     method="GET",
     http_conn_id="goats_api_connection",
     endpoint="/health",
-    endpoint=f"/health",
     dag=dag,
 )
 
@@ -23,7 +22,7 @@ extract_and_load = HttpOperator(
     task_id="extract_and_load",
     method="POST",
     http_conn_id="goats_api_connection",
-    endpoint=f"/recently_played_tracks",
+    endpoint="/recently_played_tracks",
     dag=dag,
 )
 
@@ -34,7 +33,7 @@ dbt_build = HttpOperator(
     task_id="dbt_build",
     method="POST",
     http_conn_id="goats_api_connection",
-    endpoint=f"/dbt_build",
+    endpoint="/dbt_build",
     dag=dag,
 )
 

@@ -10,5 +10,13 @@ router = APIRouter()
 )
 def dbt_build():
     dbt = dbtRunner()
-    res = dbt.invoke(["build"])
+    res = dbt.invoke(
+        [
+            "build",
+            "--project-dir",
+            "/app/goats_dbt",
+            "--profiles-dir",
+            "/app/goats_dbt/",
+        ]
+    )
     return {"success": True, "results": res.result}
