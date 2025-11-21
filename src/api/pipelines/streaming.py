@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 KAFKA_TOPIC = os.getenv("KAFKA_TOPIC")
 
+if KAFKA_TOPIC is None:
+    raise ValueError("KAFKA_TOPIC environment variable is not set")
+
 
 class Streaming:
     def __init__(self, spotify_client: SpotifyClient):
@@ -24,9 +27,13 @@ class Streaming:
         poll_interval: int,
         stream_name: str,
     ) -> None:
+        logger.info(f"Starting streaming loop for {stream_name}")
         while True:
-            data = await fetch_func()
-            await process_func(data, KafkaClient, stream_name)
+            try:
+                data = await fetch_func()
+                await process_func(data, kafka_client, stream_name)
+            except Exception as e:
+                logger.error(f"[{stream_name}] Error in streaming loop: {e}")
             await asyncio.sleep(poll_interval)
 
     async def run_current_playing(
@@ -45,7 +52,7 @@ class Streaming:
     ) -> None:
         current_playing = CurrentPlaying.model_validate(track)
 
-        if current_playing.is_playing is False:
+        if track is None or current_playing.is_playing is False:
             logger.info(f"[{stream_name}] No track playing...")
             return
 

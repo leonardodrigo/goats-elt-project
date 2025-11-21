@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
@@ -58,6 +58,8 @@ services:
       minio:
         condition: service_started
       kafka-init:
+        condition: service_completed_successfully
+      postgres-init:
         condition: service_completed_successfully
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -120,6 +122,25 @@ services:
           --partitions 3 \
           --replication-factor 1 \
           || echo "Topic already exists...";
+
+  postgres-init:
+    image: postgres:17.0
+    container_name: postgres-init
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    networks:
+      - elt_internal
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        echo "Creating dbt database...";
+        PGPASSWORD=${POSTGRES_PASSWORD} psql -h postgres -U ${POSTGRES_USER} -d postgres -c "CREATE DATABASE dbt;" \
+          || echo "Database dbt already exists...";
 
   kafka-ui:
     container_name: kafka-ui
