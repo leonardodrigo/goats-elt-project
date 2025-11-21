@@ -1,7 +1,7 @@
 
 sources:
   - name: sources
-    database: {{ env_var('DATABASE_URL') }}
+    database: '%env:DATABASE_URL%'
     schema: public
     tables:
       - name: bronze_recently_played
