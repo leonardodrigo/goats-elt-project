@@ -243,3 +243,6 @@ src/airflow/config/
 *.pyc
 *.pyo
 *.swp
+
+# DS
+*.DS_Store

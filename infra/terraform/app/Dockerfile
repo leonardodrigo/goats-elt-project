@@ -21,4 +21,4 @@ RUN uv sync --locked --no-dev
 RUN uv pip install -e .
 
 # Run the ETL process
-CMD ["uv", "run", "goats-elt"]
+CMD ["goats-elt", "api", "start"]

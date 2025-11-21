@@ -19,7 +19,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 80s
-  
+    networks:
+      - elt_internal
+
   minio:
     image: minio/minio
     container_name: minio
@@ -39,6 +41,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+    networks:
+      - elt_internal
 
   elt-service:
     build:
@@ -53,6 +57,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+      kafka-init:
+        condition: service_completed_successfully
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - MINIO_ENDPOINT=${MINIO_ENDPOINT}
@@ -61,8 +67,80 @@ services:
       - MINIO_BUCKET=${MINIO_DEFAULT_BUCKET}
       - SPOTIPY_CLIENT_ID=${SPOTIPY_CLIENT_ID}
       - SPOTIPY_CLIENT_SECRET=${SPOTIPY_CLIENT_SECRET}
+      - SPOTIPY_REFRESH_TOKEN=${SPOTIPY_REFRESH_TOKEN}
       - SPOTIPY_REDIRECT_URI=${SPOTIPY_REDIRECT_URI}
+      - SPOTIPY_SCOPES=${SPOTIPY_SCOPES}
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
+      - KAFKA_TOPIC=${KAFKA_TOPIC}
+      - POLL_INTERVAL=${POLL_INTERVAL}
+    networks:
+      - elt_internal
+      - shared_net  # Communicate with Airflow via HTTP (reverse proxy would be better but this is simpler for now)
+  
+  broker:
+    image: apache/kafka:latest
+    hostname: elt-broker
+    container_name: elt-broker
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:29093
+      KAFKA_LISTENERS: PLAINTEXT://broker:29092,CONTROLLER://broker:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    networks:
+      - elt_internal
+  
+  kafka-init:
+    image: apache/kafka:latest
+    container_name: kafka-init
+    depends_on:
+      broker:
+        condition: service_started
+    networks:
+      - elt_internal
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        echo "Creating topic...";
+        /opt/kafka/bin/kafka-topics.sh --create \
+          --bootstrap-server broker:29092 \
+          --topic spotify-streaming \
+          --partitions 3 \
+          --replication-factor 1 \
+          || echo "Topic already exists...";
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8082:8080
+    depends_on:
+      broker:
+        condition: service_started
+      kafka-init:
+        condition: service_completed_successfully
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    networks:
+      - elt_internal
 
 volumes:
   pg_data:
   minio_data:
+
+networks:
+  elt_internal: {}
+  shared_net:
+    external: true

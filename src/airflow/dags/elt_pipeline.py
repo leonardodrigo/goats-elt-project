@@ -1,0 +1,30 @@
+from airflow import DAG
+from airflow.providers.http.operators.http import HttpOperator
+from datetime import datetime
+
+API_VERSION = "v1"
+
+dag = DAG(
+    dag_id="goats_elt_pipeline",
+    start_date=datetime(2025, 11, 14),
+    schedule=None,
+    catchup=False,
+)
+
+check_goats_api = HttpOperator(
+    task_id="check_goats_api",
+    method="GET",
+    http_conn_id="goats_api_connection",
+    endpoint=f"/api/{API_VERSION}/health",
+    dag=dag,
+)
+
+extract_and_load = HttpOperator(
+    task_id="extract_and_load",
+    method="POST",
+    http_conn_id="goats_api_connection",
+    endpoint=f"/api/{API_VERSION}/recently_played_tracks",
+    dag=dag,
+)
+
+check_goats_api >> extract_and_load
