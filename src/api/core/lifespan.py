@@ -1,11 +1,15 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import asyncio
+import logging
 from src.api.core.config import POLL_INTERVAL
 from src.api.clients.kafka import KafkaClient
 from src.api.clients.spotify import SpotifyClient
 from src.api.pipelines.streaming import Streaming
 from src.api.core.utils import get_cached_kafka_client, get_cached_spotify_client
+
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -21,7 +25,7 @@ async def lifespan(app: FastAPI):
         streaming_pipeline.run_current_playing(kafka_client, int(POLL_INTERVAL))
     )
 
-    app.state.kafka_client = kafka_client
+    logger.info("Streaming task created and started")
     app.state.stream_task = stream_task
 
     try:
