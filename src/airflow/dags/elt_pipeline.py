@@ -2,7 +2,6 @@ from airflow import DAG
 from airflow.providers.http.operators.http import HttpOperator
 from datetime import datetime
 
-API_VERSION = "v1"
 
 dag = DAG(
     dag_id="goats_elt_pipeline",
@@ -15,7 +14,7 @@ check_goats_api = HttpOperator(
     task_id="check_goats_api",
     method="GET",
     http_conn_id="goats_api_connection",
-    endpoint=f"/api/{API_VERSION}/health",
+    endpoint=f"/health",
     dag=dag,
 )
 
@@ -23,8 +22,19 @@ extract_and_load = HttpOperator(
     task_id="extract_and_load",
     method="POST",
     http_conn_id="goats_api_connection",
-    endpoint=f"/api/{API_VERSION}/recently_played_tracks",
+    endpoint=f"/recently_played_tracks",
     dag=dag,
 )
 
-check_goats_api >> extract_and_load
+# konrad (load from minio to posgres)
+# ...
+
+dbt_build = HttpOperator(
+    task_id="dbt_build",
+    method="POST",
+    http_conn_id="goats_api_connection",
+    endpoint=f"/dbt_build",
+    dag=dag,
+)
+
+check_goats_api >> extract_and_load >> dbt_build
