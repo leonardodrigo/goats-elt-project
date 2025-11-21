@@ -24,6 +24,8 @@ dependencies = [
     "python-dotenv>=1.2.1",
     "dbt-postgres>=1.9.1",
     "dbt-core>=1.10.15",
+    "boto3",
+    "psycopg2-binary~=2.9.9"
 ]
 
 [project.scripts]
