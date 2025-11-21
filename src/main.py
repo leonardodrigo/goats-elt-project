@@ -1,44 +1,31 @@
 import typer
 import logging
-import os
-from dotenv import load_dotenv
+from src.api.cli import api_cli
 
-load_dotenv()
+
+__version__ = "0.1.0"
 
 logger = logging.getLogger(__name__)
 
-app = typer.Typer()
-app.__version__ = "0.1.0"
-
-DATABASE_CONNECTION = os.getenv("DATABASE_URL", "")
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-
 logging.basicConfig(
-    level=getattr(logging, LOG_LEVEL),
+    level=getattr(logging, "INFO"),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-
-@app.command()
-def run():
-    logger.info("Starting ELT process...")
-    from src.elt.extract import handler as extract_handler
-    from src.elt.load import handler as load_handler
-
-    logger.info("Extracting data from Spotify...")
-    spotify_data = extract_handler()
-
-    logger.info("Loading data to MinIO...")
-    load_handler(spotify_data)
-
-    logger.info("ELT process completed successfully")
+main_cli = typer.Typer()
 
 
-@app.callback(invoke_without_command=True)
-def main(ctx: typer.Context):
-    """Default command that runs the ELT process."""
-    if ctx.invoked_subcommand is None:
-        run()
+@main_cli.command()
+def version():
+    logger.info(__version__)
+
+
+# API CLI commands
+main_cli.add_typer(api_cli, name="api")
+
+
+def app():
+    main_cli()
 
 
 if __name__ == "__main__":
