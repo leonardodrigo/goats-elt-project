@@ -23,32 +23,32 @@ resource "google_project_service" "services" {
   disable_on_destroy = false
 }
 
-# # Spotify raw bucket
-# resource "google_storage_bucket" "spotify_raw" {
-#   name                        = "${local.prefix}-spotify-raw-${local.env}"
-#   project                     = local.project_id
-#   location                    = var.location
-#   uniform_bucket_level_access = true
+# Spotify raw bucket
+resource "google_storage_bucket" "spotify_raw" {
+  name                        = "${local.prefix}-spotify-raw-${local.env}"
+  project                     = local.project_id
+  location                    = var.location
+  uniform_bucket_level_access = true
 
-#   labels = {
-#     env       = local.env
-#     component = "elt"
-#     source    = "spotify"
-#   }
-# }
+  labels = {
+    env       = local.env
+    component = "elt"
+    source    = "spotify"
+  }
+}
 
-# # Runtime service account for ELT
-# resource "google_service_account" "spotify_elt" {
-#   account_id   = "spotify-elt"
-#   display_name = "Spotify ELT runtime SA"
-# }
+# Runtime service account for ELT
+resource "google_service_account" "spotify_elt" {
+  account_id   = "spotify-elt"
+  display_name = "Spotify ELT runtime SA"
+}
 
-# # Give Spotify ELT runtime SA read/write on the Spotify raw bucket
-# resource "google_storage_bucket_iam_member" "spotify_elt_storage_rw" {
-#   bucket = google_storage_bucket.spotify_raw.name
-#   role   = "roles/storage.objectAdmin"
-#   member = "serviceAccount:${google_service_account.spotify_elt.email}"
-# }
+# Give Spotify ELT runtime SA read/write on the Spotify raw bucket
+resource "google_storage_bucket_iam_member" "spotify_elt_storage_rw" {
+  bucket = google_storage_bucket.spotify_raw.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.spotify_elt.email}"
+}
 
 # Artifact registry to save streamlit image
 resource "google_artifact_registry_repository" "streamlit_repo" {
@@ -81,7 +81,7 @@ resource "google_cloud_run_v2_service" "streamlit" {
   location = var.region
 
   deletion_protection = false
-  
+
   template {
     service_account = google_service_account.streamlit_sa.email
 

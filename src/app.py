@@ -12,6 +12,7 @@ st.set_page_config(
 
 DATA_PATH = Path(__file__).parent.parent / "data" / "california_housing.csv"
 
+
 @st.cache_data
 def load_data():
     if not DATA_PATH.exists():
@@ -62,6 +63,7 @@ st.title("California Housing Dataset — EDA Dashboard")
 
 st.sidebar.header("Filters")
 
+
 def slider_filter(df, col):
     m1, m2 = float(df[col].min()), float(df[col].max())
     return st.sidebar.slider(
@@ -70,6 +72,7 @@ def slider_filter(df, col):
         max_value=m2,
         value=(m1, m2),
     )
+
 
 filters = {col: slider_filter(df, col) for col in numeric_cols}
 
@@ -188,11 +191,9 @@ with tab_groups:
     st.pyplot(fig5)
 
 with tab_map:
-    map_df = (
-        filtered_df.rename(columns={"Latitude": "lat", "Longitude": "lon"})[
-            ["lat", "lon"]
-        ].dropna()
-    )
+    map_df = filtered_df.rename(columns={"Latitude": "lat", "Longitude": "lon"})[
+        ["lat", "lon"]
+    ].dropna()
 
     if len(map_df) > 1000:
         map_df = map_df.sample(1000, random_state=42)
