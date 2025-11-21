@@ -1237,6 +1237,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiokafka" },
+    { name = "dbt-core" },
     { name = "dbt-postgres" },
     { name = "fastapi" },
     { name = "matplotlib" },
@@ -1271,6 +1272,7 @@ requires-dist = [
     { name = "apache-airflow", marker = "extra == 'airflow'", specifier = ">=3.1.3" },
     { name = "apache-airflow-providers-http", marker = "extra == 'airflow'", specifier = ">=5.4.0" },
     { name = "apache-airflow-providers-standard", marker = "extra == 'airflow'", specifier = ">=1.9.1" },
+    { name = "dbt-core", specifier = ">=1.10.15" },
     { name = "dbt-postgres", specifier = ">=1.9.1" },
     { name = "fastapi", specifier = ">=0.117.1" },
     { name = "matplotlib", specifier = ">=3.10.7" },
