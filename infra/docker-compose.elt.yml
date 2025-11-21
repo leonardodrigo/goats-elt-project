@@ -1,8 +1,8 @@
 name: goats-elt
 services:
-  postgres-dwh:
+  postgres:
     image: postgres:17.0
-    container_name: postgres-dwh
+    container_name: postgres
     restart: always
     shm_size: 128mb
     environment:
