@@ -14,6 +14,7 @@ check_goats_api = HttpOperator(
     task_id="check_goats_api",
     method="GET",
     http_conn_id="goats_api_connection",
+    endpoint="/health",
     endpoint=f"/health",
     dag=dag,
 )
