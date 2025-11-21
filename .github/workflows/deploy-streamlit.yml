@@ -1,0 +1,78 @@
+name: Deploy Streamlit to Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "src/**"
+      - "Dockerfile"
+      - "pyproject.toml"
+      - "uv.lock*"
+      - ".github/workflows/deploy-streamlit.yml"
+  workflow_dispatch: {}
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: ${{ secrets.GCP_REGION }}
+  REPO_ID: "goats-elt-apps-dev"
+  IMAGE_NAME: "goats-elt-streamlit"
+  SERVICE_NAME: "goats-elt-streamlit-dev"
+  RUNTIME_SA: "streamlit-dev@goats-elt-project-478211.iam.gserviceaccount.com"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup gcloud auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker "${{ env.REGION }}-docker.pkg.dev" --quiet
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE_TAG="${GITHUB_SHA::7}"
+          IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_ID}/${IMAGE_NAME}:${IMAGE_TAG}"
+
+          echo "Building image: ${IMAGE_URI}"
+
+          docker build -t "${IMAGE_URI}" .
+
+          docker push "${IMAGE_URI}"
+
+          echo "IMAGE_URI=${IMAGE_URI}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+
+      - name: Deploy to Cloud Run
+        run: |
+          echo "Deploying ${IMAGE_URI} to Cloud Run service ${SERVICE_NAME}"
+
+          gcloud run deploy "${SERVICE_NAME}" \
+            --image="${IMAGE_URI}" \
+            --region="${REGION}" \
+            --platform=managed \
+            --allow-unauthenticated \
+            --service-account="${RUNTIME_SA}" \
+            --memory=1Gi \
+            --cpu=1 \
+            --port=8080
+
+      - name: Show service URL
+        run: |
+          URL=$(gcloud run services describe "${SERVICE_NAME}" \
+            --region="${REGION}" \
+            --format='value(status.url)')
+          echo "Deployed Streamlit app URL: ${URL}"
+          echo "APP_URL=${URL}" >> $GITHUB_ENV

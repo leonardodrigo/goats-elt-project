@@ -21,3 +21,9 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "streamlit_image_tag" {
+  description = "Tag for the Streamlit container image."
+  type        = string
+  default     = "dev"
+}
