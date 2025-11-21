@@ -81,7 +81,7 @@ resource "google_cloud_run_v2_service" "streamlit" {
   location = var.region
 
   deletion_protection = false
-  
+
   template {
     service_account = google_service_account.streamlit_sa.email
 
