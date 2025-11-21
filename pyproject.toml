@@ -12,6 +12,7 @@ dependencies = [
     "spotipy>=2.25.1",
     "typer>=0.20.0",
     "uvicorn>=0.38.0",
+    "python-dotenv>=1.2.1",
 ]
 
 [project.scripts]
@@ -35,5 +36,4 @@ airflow = [
 dev = [
     "ruff>=0.14.4",
     "pre-commit>=4.4.0",
-    "python-dotenv>=1.2.1",
 ]
