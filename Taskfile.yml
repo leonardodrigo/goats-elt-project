@@ -42,6 +42,43 @@ tasks:
       - echo "Authenticating with Google Cloud..."
       - gcloud auth application-default login
 
+  docker:start:
+    vars:
+      BUILD: '{{.BUILD | default "false"}}'
+    desc: "Start Docker containers using Docker Compose"
+    cmds:
+      - echo "Starting Docker containers..."
+      - |
+        cd infra && docker compose -f docker-compose.airflow.yml -f docker-compose.elt.yml up -d {{if eq .BUILD "true"}}--build{{end}}
+
+  docker:start_elt:
+    vars:
+      BUILD: '{{.BUILD | default "false"}}'
+    desc: "Start ELT Docker containers using Docker Compose"
+    cmds:
+      - echo "Starting ELT containers..."
+      - |
+        cd infra && docker compose -f docker-compose.elt.yml up -d {{if eq .BUILD "true"}}--build{{end}}
+
+
+  docker:destroy:
+    desc: "Destroy Docker containers using Docker Compose"
+    cmds:
+      - echo "Destroying Docker containers..."
+      - cd infra && docker compose -f docker-compose.airflow.yml -f docker-compose.elt.yml down --volumes --remove-orphans
+
+  docker:destroy_airflow:
+    desc: "Destroy Airflow Docker containers using Docker Compose"
+    cmds:
+      - echo "Destroying Airflow Docker containers..."
+      - cd infra && docker compose -f docker-compose.airflow.yml down --volumes --remove-orphans
+
+  docker:destroy_elt:
+    desc: "Destroy ELT Docker containers using Docker Compose"
+    cmds:
+      - echo "Destroying ELT Docker containers..."
+      - cd infra && docker compose -f docker-compose.elt.yml down --volumes --remove-orphans
+
   docker:build:
       desc: "Build Docker image"
       vars:
