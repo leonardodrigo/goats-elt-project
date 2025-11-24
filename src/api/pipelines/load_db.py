@@ -3,16 +3,19 @@ import json
 from datetime import datetime
 from src.api.clients.postgres import get_db_connection
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ==== MinIO / S3 settings ====
-MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "http://localhost:9001/")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin123")
-MINIO_BUCKET = os.getenv("MINIO_DEFAULT_BUCKET", "spotify-data")
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
+MINIO_BUCKET = os.getenv("MINIO_BUCKET")
 
 s3 = boto3.client(
     "s3",
-    endpoint_url=MINIO_ENDPOINT,
+    endpoint_url=f"http://{MINIO_ENDPOINT}",
     aws_access_key_id=MINIO_ACCESS_KEY,
     aws_secret_access_key=MINIO_SECRET_KEY 
 )
@@ -23,6 +26,23 @@ def read_file(key: str):
     return response["Body"].read().decode("utf-8")
 
 
+def schemas_init():
+    """Create raw, bronze, silver, and gold schemas if they do not exist."""
+    schemas = ["raw", "bronze", "silver", "gold"]
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        for schema in schemas:
+            cursor.execute(
+                f"""
+                CREATE SCHEMA IF NOT EXISTS {schema};
+                """
+            )
+
+    print("Schemas verified: raw, bronze, silver, gold")
+
+
 def init_bronze_table():
     """Create schema and bronze table if they don't exist"""
     with get_db_connection() as conn:
@@ -30,7 +50,7 @@ def init_bronze_table():
         
         # Create bronze table met alleen top-level velden als kolommen
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS public.bronze_recently_played (
+            CREATE TABLE IF NOT EXISTS raw.raw_recently_played (
                 id SERIAL PRIMARY KEY,
                 source_file TEXT NOT NULL,
                 loaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -42,7 +62,7 @@ def init_bronze_table():
             );
         """)
 
-def insert_bronze_data(file_key: str, items: list):
+def insert_raw_data(file_key: str, items: list):
     """Insert each item from the API response into bronze layer"""
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -50,7 +70,7 @@ def insert_bronze_data(file_key: str, items: list):
         for item in items:
             cursor.execute(
                 """
-                INSERT INTO public.bronze_recently_played (
+                INSERT INTO raw.raw_recently_played (
                     source_file,
                     track,
                     played_at,
@@ -65,32 +85,43 @@ def insert_bronze_data(file_key: str, items: list):
                     )
             )
 
-def mark_as_loaded(object_name: str):
-    """Update status to 'loaded'"""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE public.log_landing_loading
-            SET status = 'loaded',
-                loaded_at = %s
-            WHERE object_name = %s
-        """, (datetime.now(), object_name))
+def get_most_recent_object():
+    """Return the key (filename) of the most recently modified object in the bucket."""
 
-def handler(object_name="recently_played_tracks_20251121_122638.json"):
+    logger.info(f"Minio bucket being used to get all objects: {MINIO_BUCKET}")
+
+    response = s3.list_objects_v2(Bucket=MINIO_BUCKET)
+
+    if "Contents" not in response:
+        return None
+
+    # Sort objects by LastModified timestamp, descending
+    latest_obj = max(response["Contents"], key=lambda obj: obj["LastModified"])
+    return latest_obj["Key"]
+
+
+def handler(object_name=None):
+
+    schemas_init()
 
     init_bronze_table()
+
+    # get newest file automatically
+    if object_name is None:
+        object_name = get_most_recent_object()
     
     file_contents = read_file(object_name)
     
+    
     data = json.loads(file_contents)
+
+    logger.info(f"data: {data}")
     
     # Extract items array for actual data
     items = data.get('items', [])
-    
-    insert_bronze_data(object_name, items)
 
-    mark_as_loaded(object_name)
+    logger.info(f"items: {items}")
+    
+    insert_raw_data(object_name, items)
 
     print("Loading done")
-
-handler()

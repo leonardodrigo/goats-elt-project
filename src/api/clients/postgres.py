@@ -2,17 +2,17 @@ import psycopg2
 from contextlib import contextmanager
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL", "goats_elt")
-POSTGRES_USER = os.getenv("POSTGRES_USER","myuser")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD","mypassword")
+POSTGRES_DB = os.getenv("POSTGRES_DB", "goats")
+POSTGRES_USER = os.getenv("POSTGRES_USER", "goats")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "goats")
 
 @contextmanager
 def get_db_connection():
     #Context manager for database connections
     conn = psycopg2.connect(
-        host="localhost",
+        host="postgres",
         port=5432,
-        dbname=DATABASE_URL,
+        dbname=POSTGRES_DB,
         user=POSTGRES_USER,
         password=POSTGRES_PASSWORD
     )
@@ -24,3 +24,6 @@ def get_db_connection():
         raise
     finally:
         conn.close()
+
+with get_db_connection() as conn:
+    cursor = conn.cursor()

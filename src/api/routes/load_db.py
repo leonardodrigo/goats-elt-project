@@ -9,5 +9,5 @@ router = APIRouter()
     description="load date into the postgres database",
 )
 def load_db():
-    handler(object_name="recently_played_tracks_20251121_122638.json")
+    handler()
     return {"status": "ok"}
