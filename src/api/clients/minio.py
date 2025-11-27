@@ -43,3 +43,17 @@ class MinIOClient:
                 )
                 self.create_bucket()
                 self.upload_json(object_name, data)
+
+    def read_object(self, object_name: str) -> dict:
+        try:
+            response = self.client.get_object(self.bucket_name, object_name)
+            data = response.read().decode("utf-8")
+            return json.loads(data)
+        except S3Error as e:
+            logger.error(
+                f"Error reading object {object_name} from bucket {self.bucket_name}: {e}"
+            )
+            return {}
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {e}")
+            return {}

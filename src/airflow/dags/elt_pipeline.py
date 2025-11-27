@@ -23,11 +23,22 @@ extract_and_load = HttpOperator(
     method="POST",
     http_conn_id="goats_api_connection",
     endpoint="/recently_played_tracks",
+    do_xcom_push=True,
+    response_filter=lambda resp: resp.json(),
+    multiple_outputs=True,
     dag=dag,
 )
 
-# konrad (load from minio to posgres)
-# ...
+load_postgres = HttpOperator(
+    task_id="load_to_postgres",
+    method="POST",
+    http_conn_id="goats_api_connection",
+    endpoint="/load",
+    headers={"Content-Type": "application/json"},
+    data='{{ {"object_name": ti.xcom_pull(task_ids="extract_and_load", key="object_name")} | tojson }}',
+    dag=dag,
+)
+
 
 dbt_build = HttpOperator(
     task_id="dbt_build",
@@ -37,4 +48,4 @@ dbt_build = HttpOperator(
     dag=dag,
 )
 
-check_goats_api >> extract_and_load >> dbt_build
+check_goats_api >> extract_and_load >> load_postgres >> dbt_build
