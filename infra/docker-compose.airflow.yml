@@ -7,6 +7,7 @@ x-airflow-common:
     - ${ENV_FILE_PATH:-.env}
   environment:
     &airflow-common-env
+    AIRFLOW_CONN_GOATS_API_CONNECTION: 'http://elt-service:8080'
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
@@ -211,3 +212,4 @@ volumes:
 networks:
   shared_net:
     name: shared_net
+    driver: bridge

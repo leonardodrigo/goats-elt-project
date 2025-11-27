@@ -1,8 +1,8 @@
 name: goats-elt
 services:
-  postgres:
+  postgres-dwh:
     image: postgres:17.0
-    container_name: postgres
+    container_name: postgres-dwh
     restart: always
     shm_size: 128mb
     environment:
@@ -52,6 +52,9 @@ services:
     container_name: elt
     ports:
       - '8080:8080'
+    volumes:
+      - ../src:/app/src:delegated
+    command: ["uvicorn", "src.api.app:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -171,4 +174,5 @@ volumes:
 networks:
   elt_internal: {}
   shared_net:
-    external: true
+    name: shared_net
+    driver: bridge
