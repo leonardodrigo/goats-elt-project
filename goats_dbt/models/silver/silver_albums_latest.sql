@@ -6,7 +6,7 @@ WITH input AS (
     SELECT
         track -> 'album' AS album,
         loaded_at
-    FROM {{ source('bronze','bronze_recently_played') }}
+    FROM {{ ref('bronze_recently_played') }}
     WHERE track -> 'album' ->> 'id' IS NOT null
 ),
 

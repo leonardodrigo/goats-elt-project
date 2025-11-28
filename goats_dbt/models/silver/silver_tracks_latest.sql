@@ -4,7 +4,7 @@ WITH bronze AS (
     SELECT
         track,
         loaded_at
-    FROM {{ source('bronze','bronze_recently_played') }}
+    FROM {{ ref('bronze_recently_played') }}
     WHERE track ->> 'id' IS NOT null
 ),
 

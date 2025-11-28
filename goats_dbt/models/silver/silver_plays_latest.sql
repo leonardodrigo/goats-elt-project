@@ -8,7 +8,7 @@ WITH bronze AS (
         played_at,
         context,
         loaded_at
-    FROM {{ source('bronze','bronze_recently_played') }}
+    FROM {{ ref('bronze_recently_played') }}
 ),
 
 deduped AS (
