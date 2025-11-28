@@ -16,7 +16,7 @@ tasks:
   env:set:
     desc: "Set environment variables from .env file downstream"
     cmds:
-      - "set -a; source infra/.env; set +a"
+      - "set -a; source .env; set +a"
 
   tf:init:
     desc: "Terraform initialize"
