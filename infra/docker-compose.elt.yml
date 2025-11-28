@@ -47,7 +47,7 @@ services:
   elt-service:
     build:
       context: ../
-      dockerfile: infra/terraform/app/Dockerfile
+      dockerfile: infra/terraform/app_api/Dockerfile
     image: goats-elt:latest
     container_name: elt
     ports:

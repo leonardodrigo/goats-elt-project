@@ -24,6 +24,12 @@ tasks:
     cmds:
       - "terraform init"
 
+  tf:plan:
+    desc: "Terraform plan. Run this to see the changes Terraform will make"
+    dir: infra/terraform
+    cmds:
+      - "terraform plan"
+
   tf:apply:
     desc: "Terraform apply. Run this to start your infra (docker containers etc.)"
     dir: infra/terraform

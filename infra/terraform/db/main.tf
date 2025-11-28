@@ -8,7 +8,7 @@ terraform {
 }
 
 resource "docker_container" "postgres" {
-  name  = "postgres"
+  name  = var.db_host
   image = "postgres:15"
   env = [
     "POSTGRES_USER=${var.db_user}",
@@ -16,8 +16,8 @@ resource "docker_container" "postgres" {
     "POSTGRES_DB=${var.db_name}"
   ]
   ports {
-    internal = 5432
-    external = 5432
+    internal = var.db_port
+    external = var.db_port
   }
   networks_advanced { name = var.network_name }
 }

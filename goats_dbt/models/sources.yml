@@ -1,0 +1,7 @@
+
+sources:
+  - name: raw
+    database: "{{env_var('POSTGRES_DB', 'goats')}}"
+    schema: raw
+    tables:
+      - name: raw_recently_played

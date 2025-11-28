@@ -20,7 +20,7 @@ COPY pyproject.toml uv.lock* README.md .python-version ./
 RUN uv sync --no-dev
 
 COPY data/ ./data
-COPY src/ ./src
+COPY src/streamlit ./src
 
 EXPOSE 8080
 
