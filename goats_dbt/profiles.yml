@@ -6,7 +6,7 @@ goats_dbt:
       host: "{{env_var('POSTGRES_HOST', 'localhost')}}"
       port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
       user: "{{env_var('POSTGRES_USER', 'goats')}}"
-      password: "{{env_var('POSTGRES_PASSWORD', 'goats')}}"
+      password: "{{env_var('POSTGRES_PASSWORD', 'yourpassword')}}"
       dbname: "{{env_var('POSTGRES_DB', 'goats')}}"
       schema: "{{env_var('DBT_DATASET', 'dbt_')}}_{{env_var('DBT_DEV_NAME', 'yourname')}}"
       threads: 4
