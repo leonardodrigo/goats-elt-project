@@ -75,6 +75,33 @@ resource "google_project_iam_member" "streamlit_sa_artifact_reader" {
   member  = "serviceAccount:${google_service_account.streamlit_sa.email}"
 }
 
+# Service account for GitHub Actions deployments
+resource "google_service_account" "github_actions_deployer" {
+  account_id   = "github-actions-deployer"
+  display_name = "GitHub Actions Deployer (${local.env})"
+}
+
+# Allow GitHub Actions SA to manage Cloud Run
+resource "google_project_iam_member" "gha_run_admin" {
+  project = local.project_id
+  role    = "roles/run.admin"
+  member  = "serviceAccount:${google_service_account.github_actions_deployer.email}"
+}
+
+# Allow GitHub Actions SA to push images to Artifact Registry
+resource "google_project_iam_member" "gha_artifact_writer" {
+  project = local.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.github_actions_deployer.email}"
+}
+
+# Allow GitHub Actions SA to *use* the Streamlit runtime SA
+resource "google_service_account_iam_member" "gha_can_use_streamlit_sa" {
+  service_account_id = google_service_account.streamlit_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.github_actions_deployer.email}"
+}
+
 # Cloud Run V2 service
 resource "google_cloud_run_v2_service" "streamlit" {
   name     = local.streamlit_service_name
