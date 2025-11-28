@@ -44,6 +44,3 @@ repos:
             "++target",
             "dev"
           ]
-        additional_dependencies:
-          - dbt-core==1.9.1
-          - dbt-postgres==1.9.1
