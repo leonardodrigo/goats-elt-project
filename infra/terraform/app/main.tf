@@ -22,7 +22,7 @@ resource "docker_container" "elt-container" {
   name  = "elt-container"
   image = docker_image.elt-image.image_id
   env = [
-    "DATABASE_URL=postgres://${var.db_user}:${var.db_pass}@postgres:5433/${var.db_name}",
+    "DATABASE_URL=postgres://${var.db_user}:${var.db_pass}@postgres:5432/${var.db_name}",
     "MINIO_ACCESS_KEY=${var.minio_root_user}",
     "MINIO_SECRET_KEY=${var.minio_root_password}",
     "MINIO_DEFAULT_BUCKET=${var.minio_default_bucket}",
