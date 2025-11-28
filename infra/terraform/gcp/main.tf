@@ -88,6 +88,13 @@ resource "google_project_iam_member" "gha_run_admin" {
   member  = "serviceAccount:${google_service_account.github_actions_deployer.email}"
 }
 
+# Allow GitHub Actions SA to manage Cloud Storage
+resource "google_project_iam_member" "gha_storage_admin" {
+  project = local.project_id
+  role    = "roles/storage.admin"
+  member  = "serviceAccount:${google_service_account.github_actions_deployer.email}"
+}
+
 # Allow GitHub Actions SA to push images to Artifact Registry
 resource "google_project_iam_member" "gha_artifact_writer" {
   project = local.project_id
