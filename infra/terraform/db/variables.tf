@@ -1,3 +1,11 @@
+variable "db_port" {
+  type = string
+}
+
+variable "db_host" {
+  type = string
+}
+
 variable "db_user" {
   type = string
 }
