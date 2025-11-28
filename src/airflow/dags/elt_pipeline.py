@@ -1,6 +1,6 @@
 from airflow import DAG
 from airflow.providers.http.operators.http import HttpOperator
-from datetime import datetime 
+from datetime import datetime
 
 
 dag = DAG(
@@ -37,7 +37,7 @@ load_to_db = HttpOperator(
     task_id="load_to_db",
     method="POST",
     http_conn_id="goats_api_connection",
-    endpoint=f"/load_db",
+    endpoint="/load_db",
     dag=dag,
 )
 
