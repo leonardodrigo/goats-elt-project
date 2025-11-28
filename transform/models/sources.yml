@@ -1,0 +1,7 @@
+
+sources:
+  - name: sources
+    database: '%env:DATABASE_URL%'
+    schema: raw
+    tables:
+      - name: raw_recently_played
