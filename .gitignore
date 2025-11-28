@@ -246,3 +246,5 @@ src/airflow/config/
 
 # DS
 *.DS_Store
+# test file
+test.py

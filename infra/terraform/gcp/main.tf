@@ -76,51 +76,51 @@ resource "google_project_iam_member" "streamlit_sa_artifact_reader" {
 }
 
 # Cloud Run V2 service
-resource "google_cloud_run_v2_service" "streamlit" {
-  name     = local.streamlit_service_name
-  location = var.region
+# resource "google_cloud_run_v2_service" "streamlit" {
+#   name     = local.streamlit_service_name
+#   location = var.region
 
-  deletion_protection = false
+#   deletion_protection = false
 
-  template {
-    service_account = google_service_account.streamlit_sa.email
+#   template {
+#     service_account = google_service_account.streamlit_sa.email
 
-    containers {
-      image = "${var.region}-docker.pkg.dev/${local.project_id}/${local.streamlit_repo_id}/${local.streamlit_image_name}:${var.streamlit_image_tag}"
+#     containers {
+#       image = "${var.region}-docker.pkg.dev/${local.project_id}/${local.streamlit_repo_id}/${local.streamlit_image_name}:${var.streamlit_image_tag}"
 
-      resources {
-        limits = {
-          cpu    = "1"
-          memory = "1Gi"
-        }
-      }
+#       resources {
+#         limits = {
+#           cpu    = "1"
+#           memory = "1Gi"
+#         }
+#       }
 
-      ports {
-        container_port = 8080
-      }
-    }
-  }
+#       ports {
+#         container_port = 8080
+#       }
+#     }
+#   }
 
-  ingress = "INGRESS_TRAFFIC_ALL"
+#   ingress = "INGRESS_TRAFFIC_ALL"
 
-  lifecycle {
-    ignore_changes = [
-      template[0].containers[0].image
-    ]
-  }
-}
+#   lifecycle {
+#     ignore_changes = [
+#       template[0].containers[0].image
+#     ]
+#   }
+# }
 
 
-# Public access to app
-resource "google_cloud_run_v2_service_iam_member" "streamlit_public" {
-  location = google_cloud_run_v2_service.streamlit.location
-  name     = google_cloud_run_v2_service.streamlit.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
-}
+# # Public access to app
+# resource "google_cloud_run_v2_service_iam_member" "streamlit_public" {
+#   location = google_cloud_run_v2_service.streamlit.location
+#   name     = google_cloud_run_v2_service.streamlit.name
+#   role     = "roles/run.invoker"
+#   member   = "allUsers"
+# }
 
-# Output of App
-output "streamlit_url" {
-  value       = google_cloud_run_v2_service.streamlit.uri
-  description = "Public URL of the Streamlit app"
-}
+# # Output of App
+# output "streamlit_url" {
+#   value       = google_cloud_run_v2_service.streamlit.uri
+#   description = "Public URL of the Streamlit app"
+# }
