@@ -50,6 +50,8 @@ class Streaming:
     async def _process_current_playing(
         self, track: dict, kafka_client: KafkaClient, stream_name: str
     ) -> None:
+        logger.info(f"track name: {track}")
+
         current_playing = CurrentPlaying.model_validate(track)
 
         if track is None or current_playing.is_playing is False:
