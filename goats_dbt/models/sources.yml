@@ -1,7 +1,7 @@
 
 sources:
-  - name: sources
-    database: '%env:DATABASE_URL%'
+  - name: raw
+    database: "{{env_var('DATABASE_URl', 'something')}}"
     schema: raw
     tables:
       - name: raw_recently_played

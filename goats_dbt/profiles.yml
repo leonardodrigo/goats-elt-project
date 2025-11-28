@@ -4,7 +4,7 @@ goats_dbt:
     dev:
       type: postgres
       host: "{{env_var('POSTGRES_HOST', 'localhost')}}"
-      port: "{{env_var('POSTGRES_PORT') | int}}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
       user: "{{env_var('POSTGRES_USER', 'username')}}"
       password: "{{env_var('POSTGRES_PASSWORD', 'password')}}"
       dbname: "{{env_var('POSTGRES_DB', 'dbt')}}"
