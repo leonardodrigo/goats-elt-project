@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.13"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -1237,21 +1237,13 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiokafka" },
-<<<<<<< HEAD
     { name = "dbt-core" },
     { name = "dbt-postgres" },
-=======
-    { name = "boto3" },
->>>>>>> 45ac515 (update all)
     { name = "fastapi" },
     { name = "matplotlib" },
     { name = "minio" },
-<<<<<<< HEAD
     { name = "pandas" },
     { name = "pre-commit" },
-=======
-    { name = "psycopg2-binary" },
->>>>>>> 45ac515 (update all)
     { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "requests" },
@@ -1280,19 +1272,14 @@ requires-dist = [
     { name = "apache-airflow", marker = "extra == 'airflow'", specifier = ">=3.1.3" },
     { name = "apache-airflow-providers-http", marker = "extra == 'airflow'", specifier = ">=5.4.0" },
     { name = "apache-airflow-providers-standard", marker = "extra == 'airflow'", specifier = ">=1.9.1" },
-<<<<<<< HEAD
     { name = "dbt-core", specifier = ">=1.10.15" },
     { name = "dbt-postgres", specifier = ">=1.9.1" },
-=======
-    { name = "boto3" },
->>>>>>> 45ac515 (update all)
     { name = "fastapi", specifier = ">=0.117.1" },
     { name = "matplotlib", specifier = ">=3.10.7" },
     { name = "minio", specifier = ">=7.2.18" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pre-commit", specifier = ">=4.4.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.4.0" },
-    { name = "psycopg2-binary", specifier = "~=2.9.9" },
     { name = "pydantic", specifier = ">=2.12.4" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "requests", specifier = ">=2.32.5" },
@@ -1514,21 +1501,12 @@ wheels = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "joblib"
 version = "1.5.2"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e8/5d/447af5ea094b9e4c4054f82e223ada074c552335b9b4b2d14bd9b35a67c4/joblib-1.5.2.tar.gz", hash = "sha256:3faa5c39054b2f03ca547da9b2f52fde67c06240c31853f306aea97f13647b55", size = 331077, upload-time = "2025-08-27T12:15:46.575Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/e8/685f47e0d754320684db4425a0967f7d3fa70126bffd76110b7009a0090f/joblib-1.5.2-py3-none-any.whl", hash = "sha256:4e1f0bdbb987e6d843c70cf43714cb276623def372df3c22fe5266b2670bc241", size = 308396, upload-time = "2025-08-27T12:15:45.188Z" },
-=======
-name = "jmespath"
-version = "1.0.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe", size = 25843, upload-time = "2022-06-17T18:00:12.224Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/b4/b9b800c45527aadd64d5b442f9b932b00648617eb5d63d2c7a6587b7cafc/jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980", size = 20256, upload-time = "2022-06-17T18:00:10.251Z" },
->>>>>>> 45ac515 (update all)
 ]
 
 [[package]]
@@ -2579,7 +2557,6 @@ wheels = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "pyarrow"
 version = "21.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2602,8 +2579,6 @@ wheels = [
 ]
 
 [[package]]
-=======
->>>>>>> 45ac515 (update all)
 name = "pycparser"
 version = "2.23"
 source = { registry = "https://pypi.org/simple" }
@@ -3163,18 +3138,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/86/59/a451d7420a77ab0b98f7affa3a1d78a313d2f7281a57afb1a34bae8ab412/seaborn-0.13.2.tar.gz", hash = "sha256:93e60a40988f4d65e9f4885df477e2fdaff6b73a9ded434c1ab356dd57eefff7", size = 1457696, upload-time = "2024-01-25T13:21:52.551Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/83/11/00d3c3dfc25ad54e731d91449895a79e4bf2384dc3ac01809010ba88f6d5/seaborn-0.13.2-py3-none-any.whl", hash = "sha256:636f8336facf092165e27924f223d3c62ca560b1f2bb5dff7ab7fad265361987", size = 294914, upload-time = "2024-01-25T13:21:49.598Z" },
-]
-
-[[package]]
-name = "s3transfer"
-version = "0.15.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "botocore" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ca/bb/940d6af975948c1cc18f44545ffb219d3c35d78ec972b42ae229e8e37e08/s3transfer-0.15.0.tar.gz", hash = "sha256:d36fac8d0e3603eff9b5bfa4282c7ce6feb0301a633566153cbd0b93d11d8379", size = 152185, upload-time = "2025-11-20T20:28:56.327Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5f/e1/5ef25f52973aa12a19cf4e1375d00932d7fb354ffd310487ba7d44225c1a/s3transfer-0.15.0-py3-none-any.whl", hash = "sha256:6f8bf5caa31a0865c4081186689db1b2534cef721d104eb26101de4b9d6a5852", size = 85984, upload-time = "2025-11-20T20:28:55.046Z" },
 ]
 
 [[package]]
