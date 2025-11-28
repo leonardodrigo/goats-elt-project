@@ -13,8 +13,8 @@ resource "google_project_service" "services" {
   for_each = toset([
     "storage.googleapis.com",
     "bigquery.googleapis.com",
-    "run.googleapis.com",
-    "artifactregistry.googleapis.com",
+    # "run.googleapis.com",
+    # "artifactregistry.googleapis.com",
   ])
 
   project = local.project_id
@@ -50,18 +50,18 @@ resource "google_storage_bucket_iam_member" "spotify_elt_storage_rw" {
   member = "serviceAccount:${google_service_account.spotify_elt.email}"
 }
 
-# Artifact registry to save streamlit image
-resource "google_artifact_registry_repository" "streamlit_repo" {
-  location      = var.region
-  repository_id = local.streamlit_repo_id
-  description   = "Artifact Registry for Streamlit app"
-  format        = "DOCKER"
+# # Artifact registry to save streamlit image
+# resource "google_artifact_registry_repository" "streamlit_repo" {
+#   location      = var.region
+#   repository_id = local.streamlit_repo_id
+#   description   = "Artifact Registry for Streamlit app"
+#   format        = "DOCKER"
 
-  labels = {
-    env       = local.env
-    component = "streamlit"
-  }
-}
+#   labels = {
+#     env       = local.env
+#     component = "streamlit"
+#   }
+# }
 
 # Service account for Cloud Run
 resource "google_service_account" "streamlit_sa" {
