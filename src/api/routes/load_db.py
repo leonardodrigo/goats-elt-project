@@ -6,6 +6,7 @@ router = APIRouter()
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 
+
 @router.post(
     "/load_db",
     description="load date into the postgres database",

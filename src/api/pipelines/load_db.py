@@ -76,7 +76,7 @@ def handler(object_name=None, bucket_name=None):
 
     if bucket_name is None:
         raise ValueError("bucket_name must be provided for GCS")
-    
+
     gcs_client = CloudStorageClient()
     if object_name is None:
         object_name = gcs_client.get_most_recent_gcs_object(bucket_name)
@@ -84,7 +84,7 @@ def handler(object_name=None, bucket_name=None):
             raise ValueError("No files found in the GCS bucket.")
 
     data: dict = gcs_client.download_json(bucket_name, object_name)
-    
+
     logger.info(f"data: {data}")
     items = data.get("items", [])
 

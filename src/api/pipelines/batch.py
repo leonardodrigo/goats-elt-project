@@ -18,4 +18,6 @@ def extract_and_load_recently_played_tracks(
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     object_name = f"recently_played_tracks_{timestamp}.json"
 
-    storage_client.upload_json(bucket_name=BUCKET_NAME, blob_name=object_name, data=recently_played_tracks)
+    storage_client.upload_json(
+        bucket_name=BUCKET_NAME, blob_name=object_name, data=recently_played_tracks
+    )

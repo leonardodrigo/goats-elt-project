@@ -143,7 +143,6 @@ services:
 
 volumes:
   pg_data:
-  minio_data:
 
 networks:
   elt_internal: {}

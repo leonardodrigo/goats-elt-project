@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 
+
 class CloudStorageClient:
     def __init__(self):
         self.project_id = GCP_PROJECT_ID
@@ -18,10 +19,7 @@ class CloudStorageClient:
 
         json_data = json.dumps(data)
 
-        blob.upload_from_string(
-            json_data,
-            content_type="application/json"
-        )
+        blob.upload_from_string(json_data, content_type="application/json")
 
         logger.info(f"Uploaded JSON to gs://{bucket_name}/{blob_name}")
         return True
@@ -39,4 +37,3 @@ class CloudStorageClient:
             return None
         latest_blob = max(blobs, key=lambda b: b.updated)
         return latest_blob.name
-
