@@ -15,6 +15,7 @@ services:
       - 55679:55679 # zpages extension
     networks:
       - otel_internal
+      - shared_net
 
   loki:
     image: grafana/loki:latest
