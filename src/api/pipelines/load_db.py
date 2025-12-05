@@ -1,31 +1,10 @@
-import boto3
 import json
 from src.api.clients.postgres import get_db_connection
-import os
 import logging
 from enum import Enum
+from src.api.clients.storage import CloudStorageClient
 
 logger = logging.getLogger(__name__)
-
-# ==== MinIO / S3 settings ====
-MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
-MINIO_BUCKET = os.getenv("MINIO_BUCKET")
-
-
-s3 = boto3.client(
-    "s3",
-    endpoint_url=f"http://{MINIO_ENDPOINT}",
-    aws_access_key_id=MINIO_ACCESS_KEY,
-    aws_secret_access_key=MINIO_SECRET_KEY,
-)
-
-
-def read_file(key: str):
-    """Read file contents from S3/MinIO"""
-    response = s3.get_object(Bucket=MINIO_BUCKET, Key=key)
-    return response["Body"].read().decode("utf-8")
 
 
 class Schema(Enum):
@@ -44,7 +23,7 @@ def schemas_init():
         for schema in Schema:
             cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {schema.value};")
 
-    print("Schemas verified:", ", ".join(s.value for s in Schema))
+    logger.info("Schemas verified:", ", ".join(s.value for s in Schema))
 
 
 def init_bronze_table():
@@ -91,41 +70,24 @@ def insert_raw_data(file_key: str, items: list):
             )
 
 
-def get_most_recent_object():
-    """Return the key (filename) of the most recently modified object in the bucket."""
-
-    logger.info(f"Minio bucket being used to get all objects: {MINIO_BUCKET}")
-
-    response = s3.list_objects_v2(Bucket=MINIO_BUCKET)
-
-    if "Contents" not in response:
-        return None
-
-    # Sort objects by LastModified timestamp, descending
-    latest_obj = max(response["Contents"], key=lambda obj: obj["LastModified"])
-    return latest_obj["Key"]
-
-
-def handler(object_name=None):
+def handler(object_name=None, bucket_name=None):
     schemas_init()
-
     init_bronze_table()
 
-    # get newest file automatically
+    if bucket_name is None:
+        raise ValueError("bucket_name must be provided for GCS")
+
+    gcs_client = CloudStorageClient()
     if object_name is None:
-        object_name = get_most_recent_object()
+        object_name = gcs_client.get_most_recent_gcs_object(bucket_name)
+        if object_name is None:
+            raise ValueError("No files found in the GCS bucket.")
 
-    file_contents = read_file(object_name)
-
-    data = json.loads(file_contents)
+    data: dict = gcs_client.download_json(bucket_name, object_name)
 
     logger.info(f"data: {data}")
-
-    # Extract items array for actual data
     items = data.get("items", [])
 
-    logger.info(f"items: {items}")
-
+    logger.info("Starting insert raw data")
     insert_raw_data(object_name, items)
-
-    print("Loading done")
+    logger.info("Loading done")

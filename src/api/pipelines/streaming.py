@@ -6,12 +6,21 @@ from src.api.clients.kafka import KafkaClient
 from src.api.models.tracks import CurrentPlaying
 import os
 
+from opentelemetry import metrics
+
 logger = logging.getLogger(__name__)
 
 KAFKA_TOPIC = os.getenv("KAFKA_TOPIC")
 
 if KAFKA_TOPIC is None:
     raise ValueError("KAFKA_TOPIC environment variable is not set")
+
+# Metrics
+meter = metrics.get_meter(__name__)
+tracks_counter = meter.create_counter(
+    "tracks_processed_total",
+    description="Total tracks processed",
+)
 
 
 class Streaming:
@@ -50,11 +59,13 @@ class Streaming:
     async def _process_current_playing(
         self, track: dict, kafka_client: KafkaClient, stream_name: str
     ) -> None:
-        logger.info(f"track name: {track}")
+        if track is None:
+            logger.info(f"[{stream_name}] No track playing...")
+            return
 
         current_playing = CurrentPlaying.model_validate(track)
 
-        if track is None or current_playing.is_playing is False:
+        if current_playing.is_playing is False:
             logger.info(f"[{stream_name}] No track playing...")
             return
 
@@ -62,14 +73,15 @@ class Streaming:
         track_name = current_playing.item.name
         artist_names = ", ".join(artist.name for artist in current_playing.item.artists)
 
-        # Not publish duplicate current playing tracks
         if track_id != self.last_track_id:
             logger.info(f"[{stream_name}] [Published] {track_name} - {artist_names}")
             await kafka_client.send(
                 topic=KAFKA_TOPIC, message=current_playing.model_dump()
             )
             self.last_track_id = track_id
+            tracks_counter.add(1, {"status": "published"})
         else:
             logger.info(
                 f"[{stream_name}] [Not published] {track_name} - {artist_names}"
             )
+            tracks_counter.add(1, {"status": "skipped"})

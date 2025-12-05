@@ -41,8 +41,8 @@ resource "docker_container" "broker" {
   ]
 
   networks_advanced {
-    name = var.network_name
-    aliases = [ "broker" ]
+    name    = var.network_name
+    aliases = ["broker"]
   }
 }
 
@@ -71,7 +71,7 @@ resource "docker_container" "kafka_init" {
     EOT
   ]
 
-  must_run = false  # allow container to exit after command
+  must_run = false # allow container to exit after command
 }
 
 
