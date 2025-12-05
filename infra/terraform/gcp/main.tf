@@ -13,8 +13,8 @@ resource "google_project_service" "services" {
   for_each = toset([
     "storage.googleapis.com",
     "bigquery.googleapis.com",
-    "run.googleapis.com",
-    "artifactregistry.googleapis.com",
+    # "run.googleapis.com",
+    # "artifactregistry.googleapis.com",
   ])
 
   project = local.project_id
@@ -50,18 +50,18 @@ resource "google_storage_bucket_iam_member" "spotify_elt_storage_rw" {
   member = "serviceAccount:${google_service_account.spotify_elt.email}"
 }
 
-# Artifact registry to save streamlit image
-resource "google_artifact_registry_repository" "streamlit_repo" {
-  location      = var.region
-  repository_id = local.streamlit_repo_id
-  description   = "Artifact Registry for Streamlit app"
-  format        = "DOCKER"
+# # Artifact registry to save streamlit image
+# resource "google_artifact_registry_repository" "streamlit_repo" {
+#   location      = var.region
+#   repository_id = local.streamlit_repo_id
+#   description   = "Artifact Registry for Streamlit app"
+#   format        = "DOCKER"
 
-  labels = {
-    env       = local.env
-    component = "streamlit"
-  }
-}
+#   labels = {
+#     env       = local.env
+#     component = "streamlit"
+#   }
+# }
 
 # Service account for Cloud Run
 resource "google_service_account" "streamlit_sa" {
@@ -75,52 +75,86 @@ resource "google_project_iam_member" "streamlit_sa_artifact_reader" {
   member  = "serviceAccount:${google_service_account.streamlit_sa.email}"
 }
 
+# Service account for GitHub Actions deployments
+resource "google_service_account" "github_actions_deployer" {
+  account_id   = "github-actions-deployer"
+  display_name = "GitHub Actions Deployer (${local.env})"
+}
+
+# Allow GitHub Actions SA to manage Cloud Run
+resource "google_project_iam_member" "gha_run_admin" {
+  project = local.project_id
+  role    = "roles/run.admin"
+  member  = "serviceAccount:${google_service_account.github_actions_deployer.email}"
+}
+
+# Allow GitHub Actions SA to manage Cloud Storage
+resource "google_project_iam_member" "gha_storage_admin" {
+  project = local.project_id
+  role    = "roles/storage.admin"
+  member  = "serviceAccount:${google_service_account.github_actions_deployer.email}"
+}
+
+# Allow GitHub Actions SA to push images to Artifact Registry
+resource "google_project_iam_member" "gha_artifact_writer" {
+  project = local.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.github_actions_deployer.email}"
+}
+
+# Allow GitHub Actions SA to *use* the Streamlit runtime SA
+resource "google_service_account_iam_member" "gha_can_use_streamlit_sa" {
+  service_account_id = google_service_account.streamlit_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.github_actions_deployer.email}"
+}
+
 # Cloud Run V2 service
-resource "google_cloud_run_v2_service" "streamlit" {
-  name     = local.streamlit_service_name
-  location = var.region
+# resource "google_cloud_run_v2_service" "streamlit" {
+#   name     = local.streamlit_service_name
+#   location = var.region
 
-  deletion_protection = false
+#   deletion_protection = false
 
-  template {
-    service_account = google_service_account.streamlit_sa.email
+#   template {
+#     service_account = google_service_account.streamlit_sa.email
 
-    containers {
-      image = "${var.region}-docker.pkg.dev/${local.project_id}/${local.streamlit_repo_id}/${local.streamlit_image_name}:${var.streamlit_image_tag}"
+#     containers {
+#       image = "${var.region}-docker.pkg.dev/${local.project_id}/${local.streamlit_repo_id}/${local.streamlit_image_name}:${var.streamlit_image_tag}"
 
-      resources {
-        limits = {
-          cpu    = "1"
-          memory = "1Gi"
-        }
-      }
+#       resources {
+#         limits = {
+#           cpu    = "1"
+#           memory = "1Gi"
+#         }
+#       }
 
-      ports {
-        container_port = 8080
-      }
-    }
-  }
+#       ports {
+#         container_port = 8080
+#       }
+#     }
+#   }
 
-  ingress = "INGRESS_TRAFFIC_ALL"
+#   ingress = "INGRESS_TRAFFIC_ALL"
 
-  lifecycle {
-    ignore_changes = [
-      template[0].containers[0].image
-    ]
-  }
-}
+#   lifecycle {
+#     ignore_changes = [
+#       template[0].containers[0].image
+#     ]
+#   }
+# }
 
 
-# Public access to app
-resource "google_cloud_run_v2_service_iam_member" "streamlit_public" {
-  location = google_cloud_run_v2_service.streamlit.location
-  name     = google_cloud_run_v2_service.streamlit.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
-}
+# # Public access to app
+# resource "google_cloud_run_v2_service_iam_member" "streamlit_public" {
+#   location = google_cloud_run_v2_service.streamlit.location
+#   name     = google_cloud_run_v2_service.streamlit.name
+#   role     = "roles/run.invoker"
+#   member   = "allUsers"
+# }
 
-# Output of App
-output "streamlit_url" {
-  value       = google_cloud_run_v2_service.streamlit.uri
-  description = "Public URL of the Streamlit app"
-}
+# # Output of App
+# output "streamlit_url" {
+#   value       = google_cloud_run_v2_service.streamlit.uri
+#   description = "Public URL of the Streamlit app"
+# }

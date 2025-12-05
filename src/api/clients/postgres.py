@@ -1,14 +1,12 @@
 import psycopg2
 from contextlib import contextmanager
 import os
-
 import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-
-POSTGRES_DB = os.getenv("POSTGRES_DB", "goats")
+POSTGRES_DB = os.getenv("POSTGRES_DB", "dbt")
 POSTGRES_USER = os.getenv("POSTGRES_USER", "goats")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "goats")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "postgres")
@@ -33,7 +31,3 @@ def get_db_connection():
         raise
     finally:
         conn.close()
-
-
-with get_db_connection() as conn:
-    cursor = conn.cursor()
