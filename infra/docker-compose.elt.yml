@@ -22,28 +22,6 @@ services:
     networks:
       - elt_internal
 
-  minio:
-    image: minio/minio
-    container_name: minio
-    ports:
-      - '9000:9000'
-      - '9001:9001'
-    volumes:
-      - 'minio_data:/data'
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-      - MINIO_DEFAULT_BUCKET=${MINIO_DEFAULT_BUCKET}
-    command: server /data --console-address ":9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    networks:
-      - elt_internal
-
   elt-service:
     build:
       context: ../
@@ -55,8 +33,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
-        condition: service_started
       kafka-init:
         condition: service_completed_successfully
       postgres-init:
@@ -70,10 +46,6 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - DBT_DATASET=${DBT_DATASET}
       - DBT_DEV_NAME=${DBT_DEV_NAME}
-      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
-      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
-      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
-      - MINIO_BUCKET=${MINIO_DEFAULT_BUCKET}
       - SPOTIPY_CLIENT_ID=${SPOTIPY_CLIENT_ID}
       - SPOTIPY_CLIENT_SECRET=${SPOTIPY_CLIENT_SECRET}
       - SPOTIPY_REFRESH_TOKEN=${SPOTIPY_REFRESH_TOKEN}
@@ -82,6 +54,11 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
       - KAFKA_TOPIC=${KAFKA_TOPIC}
       - POLL_INTERVAL=${POLL_INTERVAL}
+      - GOOGLE_APPLICATION_CREDENTIALS=/secrets/service-account.json
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - BUCKET_NAME=${BUCKET_NAME}
+    volumes:
+      - ../infra/credentials/service-account.json:/secrets/service-account.json:ro
     networks:
       - elt_internal
       - shared_net  # Communicate with Airflow via HTTP (reverse proxy would be better but this is simpler for now)
@@ -166,7 +143,6 @@ services:
 
 volumes:
   pg_data:
-  minio_data:
 
 networks:
   elt_internal: {}

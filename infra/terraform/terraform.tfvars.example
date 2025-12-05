@@ -1,9 +1,5 @@
 project_root_path = "/Users/elif/Documents/xccelerated/goats-elt-project" # change this to your projects root path, so terraform does not complain about paths
 network_name = "elt_net"
-minio_root_user = "admin"
-minio_root_password = ""
-minio_default_bucket = "spotify-data"
-minio_endpoint = "minio:9000"
 db_host = "postgres"
 db_port = 5432
 db_user = "admin"
