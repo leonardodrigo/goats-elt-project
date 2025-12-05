@@ -39,6 +39,11 @@ exporters:
     tls:
       insecure: true
 
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
   debug:
     verbosity: detailed
     sampling_initial: 5
@@ -58,7 +63,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch, resource]
-      exporters: [debug]
+      exporters: [otlp/tempo, debug]
     
     metrics:
       receivers: [otlp, prometheus]

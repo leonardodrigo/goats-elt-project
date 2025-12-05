@@ -17,3 +17,16 @@ datasources:
     editable: true
     jsonData:
       maxLines: 1000
+  
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: true
+    jsonData:
+      defaultQueryType: traces
+      searchEnabled: true
+      showTraceID: true
+      traceToLogsEnabled: true
+      logsToTraceEnabled: true
+      spanLinksEnabled: true
