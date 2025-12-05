@@ -25,7 +25,8 @@ dependencies = [
     "boto3~=1.41.5",
     "psycopg2-binary~=2.9.9",
     "google-cloud-storage>=3.6.0",
-    "opentelemtry-sdk>=1.39.0"
+    "opentelemetry-sdk>=1.39.0",
+    "opentelemetry-exporter-otlp-proto-http>=1.39.0",
 ]
 
 [project.scripts]

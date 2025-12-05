@@ -6,7 +6,7 @@ from src.api.routes.tracks import router as tracks_router
 from src.api.routes.dbt import router as dbt_router
 from src.api.routes.load_db import router as load_db_router
 
-setup_otel_logging("otel-collector-1", "4317", True)
+setup_otel_logging("otel-collector", 4318)
 
 app = FastAPI(title="Goats API", description="API to run ELT jobs", lifespan=lifespan)
 

@@ -5,13 +5,7 @@ import os
 import time
 import logging
 
-import logging
-from src.monitoring.otel_setup import setup_otel_logging
-
-setup_otel_logging()
-
-logger = logging.getLogger("goats-elt")
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 def ensure_token(func):
