@@ -36,7 +36,7 @@ def setup_otel(
     # Tracing setup
     tracer_provider = TracerProvider(resource=resource)
     trace.set_tracer_provider(tracer_provider)
-    
+
     trace_exporter = OTLPSpanExporter(endpoint=f"{base_endpoint}/v1/traces")
     tracer_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
 

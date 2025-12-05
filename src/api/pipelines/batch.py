@@ -18,9 +18,11 @@ def extract_and_load_recently_played_tracks(
         span.set_attribute("pipeline.stage", "extract")
         span.set_attribute("data.source", "spotify_api")
         span.set_attribute("data.limit", limit)
-        
+
         with tracer.start_as_current_span("spotify.fetch_recently_played"):
-            recently_played_tracks = spotify_client.fetch_recently_played_tracks(limit=limit)
+            recently_played_tracks = spotify_client.fetch_recently_played_tracks(
+                limit=limit
+            )
             track_count = len(recently_played_tracks.get("items", []))
             span.set_attribute("tracks.count", track_count)
             logger.info("Extracted recently played tracks")
@@ -32,5 +34,7 @@ def extract_and_load_recently_played_tracks(
             upload_span.set_attribute("gcs.bucket", BUCKET_NAME)
             upload_span.set_attribute("gcs.object", object_name)
             storage_client.upload_json(
-                bucket_name=BUCKET_NAME, blob_name=object_name, data=recently_played_tracks
+                bucket_name=BUCKET_NAME,
+                blob_name=object_name,
+                data=recently_played_tracks,
             )

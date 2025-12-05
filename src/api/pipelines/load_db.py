@@ -20,7 +20,7 @@ def schemas_init():
     """Create raw, bronze, silver, and gold schemas if they do not exist."""
     with tracer.start_as_current_span("db.schemas_init") as span:
         span.set_attribute("db.schema_count", len(Schema))
-        
+
         with get_db_connection() as conn:
             cursor = conn.cursor()
 
@@ -34,7 +34,7 @@ def init_bronze_table():
     """Create schema and bronze table if they don't exist"""
     with tracer.start_as_current_span("db.init_bronze_table") as span:
         span.set_attribute("db.table", "raw.raw_recently_played")
-        
+
         with get_db_connection() as conn:
             cursor = conn.cursor()
 
@@ -57,7 +57,7 @@ def insert_raw_data(file_key: str, items: list):
     with tracer.start_as_current_span("db.insert_raw_data") as span:
         span.set_attribute("db.table", "raw.raw_recently_played")
         span.set_attribute("db.records_count", len(items))
-        
+
         with get_db_connection() as conn:
             cursor = conn.cursor()
 

@@ -39,7 +39,9 @@ class Streaming:
     ) -> None:
         logger.info(f"Starting streaming loop for {stream_name}")
         while True:
-            with tracer.start_as_current_span(f"streaming.{stream_name.lower()}_poll") as span:
+            with tracer.start_as_current_span(
+                f"streaming.{stream_name.lower()}_poll"
+            ) as span:
                 span.set_attribute("stream.name", stream_name)
                 span.set_attribute("stream.poll_interval", poll_interval)
                 try:
@@ -80,21 +82,25 @@ class Streaming:
 
             track_id = current_playing.item.id
             track_name = current_playing.item.name
-            artist_names = ", ".join(artist.name for artist in current_playing.item.artists)
-            
+            artist_names = ", ".join(
+                artist.name for artist in current_playing.item.artists
+            )
+
             span.set_attribute("track.id", track_id)
             span.set_attribute("track.name", track_name)
             span.set_attribute("track.artists", artist_names)
 
             if track_id != self.last_track_id:
                 span.set_attribute("track.status", "published")
-                logger.info(f"[{stream_name}] [Published] {track_name} - {artist_names}")
-                
+                logger.info(
+                    f"[{stream_name}] [Published] {track_name} - {artist_names}"
+                )
+
                 with tracer.start_as_current_span("kafka.send"):
                     await kafka_client.send(
                         topic=KAFKA_TOPIC, message=current_playing.model_dump()
                     )
-                
+
                 self.last_track_id = track_id
                 tracks_counter.add(1, {"status": "published"})
             else:
