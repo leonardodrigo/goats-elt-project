@@ -30,13 +30,24 @@ metrics_generator:
     external_labels:
       source: tempo
       cluster: goats-elt
+  processor:
+    local_blocks:
+      flush_to_storage: true
+    service_graphs:
+      dimensions:
+        - service.name
+    span_metrics:
+      dimensions:
+        - service.name
   storage:
     path: /var/tempo/generator/wal
     remote_write:
       - url: http://prometheus:9090/api/v1/write
         send_exemplars: true
+  traces_storage:
+    path: /var/tempo/generator/traces
 
 overrides:
   defaults:
     metrics_generator:
-      processors: [service-graphs, span-metrics]
+      processors: [local-blocks, service-graphs, span-metrics]
