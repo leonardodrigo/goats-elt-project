@@ -27,6 +27,7 @@ dependencies = [
     "google-cloud-storage>=3.6.0",
     "opentelemetry-sdk>=1.39.0",
     "opentelemetry-exporter-otlp-proto-http>=1.39.0",
+    "opentelemetry-instrumentation>=0.60b0",
 ]
 
 [project.scripts]

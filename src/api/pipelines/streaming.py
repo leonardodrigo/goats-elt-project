@@ -6,9 +6,10 @@ from src.api.clients.kafka import KafkaClient
 from src.api.models.tracks import CurrentPlaying
 import os
 
-from opentelemetry import metrics
+from opentelemetry import metrics, trace
 
 logger = logging.getLogger(__name__)
+tracer = trace.get_tracer(__name__)
 
 KAFKA_TOPIC = os.getenv("KAFKA_TOPIC")
 
@@ -38,11 +39,18 @@ class Streaming:
     ) -> None:
         logger.info(f"Starting streaming loop for {stream_name}")
         while True:
-            try:
-                data = await fetch_func()
-                await process_func(data, kafka_client, stream_name)
-            except Exception as e:
-                logger.error(f"[{stream_name}] Error in streaming loop: {e}")
+            with tracer.start_as_current_span(
+                f"streaming.{stream_name.lower()}_poll"
+            ) as span:
+                span.set_attribute("stream.name", stream_name)
+                span.set_attribute("stream.poll_interval", poll_interval)
+                try:
+                    data = await fetch_func()
+                    await process_func(data, kafka_client, stream_name)
+                except Exception as e:
+                    span.record_exception(e)
+                    span.set_status(trace.Status(trace.StatusCode.ERROR, str(e)))
+                    logger.error(f"[{stream_name}] Error in streaming loop: {e}")
             await asyncio.sleep(poll_interval)
 
     async def run_current_playing(
@@ -59,29 +67,45 @@ class Streaming:
     async def _process_current_playing(
         self, track: dict, kafka_client: KafkaClient, stream_name: str
     ) -> None:
-        if track is None:
-            logger.info(f"[{stream_name}] No track playing...")
-            return
+        with tracer.start_as_current_span("streaming.process_track") as span:
+            if track is None:
+                span.set_attribute("track.status", "no_track")
+                logger.info(f"[{stream_name}] No track playing...")
+                return
 
-        current_playing = CurrentPlaying.model_validate(track)
+            current_playing = CurrentPlaying.model_validate(track)
 
-        if current_playing.is_playing is False:
-            logger.info(f"[{stream_name}] No track playing...")
-            return
+            if current_playing.is_playing is False:
+                span.set_attribute("track.status", "paused")
+                logger.info(f"[{stream_name}] No track playing...")
+                return
 
-        track_id = current_playing.item.id
-        track_name = current_playing.item.name
-        artist_names = ", ".join(artist.name for artist in current_playing.item.artists)
-
-        if track_id != self.last_track_id:
-            logger.info(f"[{stream_name}] [Published] {track_name} - {artist_names}")
-            await kafka_client.send(
-                topic=KAFKA_TOPIC, message=current_playing.model_dump()
+            track_id = current_playing.item.id
+            track_name = current_playing.item.name
+            artist_names = ", ".join(
+                artist.name for artist in current_playing.item.artists
             )
-            self.last_track_id = track_id
-            tracks_counter.add(1, {"status": "published"})
-        else:
-            logger.info(
-                f"[{stream_name}] [Not published] {track_name} - {artist_names}"
-            )
-            tracks_counter.add(1, {"status": "skipped"})
+
+            span.set_attribute("track.id", track_id)
+            span.set_attribute("track.name", track_name)
+            span.set_attribute("track.artists", artist_names)
+
+            if track_id != self.last_track_id:
+                span.set_attribute("track.status", "published")
+                logger.info(
+                    f"[{stream_name}] [Published] {track_name} - {artist_names}"
+                )
+
+                with tracer.start_as_current_span("kafka.send"):
+                    await kafka_client.send(
+                        topic=KAFKA_TOPIC, message=current_playing.model_dump()
+                    )
+
+                self.last_track_id = track_id
+                tracks_counter.add(1, {"status": "published"})
+            else:
+                span.set_attribute("track.status", "skipped")
+                logger.info(
+                    f"[{stream_name}] [Not published] {track_name} - {artist_names}"
+                )
+                tracks_counter.add(1, {"status": "skipped"})
