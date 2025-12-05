@@ -19,5 +19,8 @@ resource "docker_container" "postgres" {
     internal = var.db_port
     external = var.db_port
   }
-  networks_advanced { name = var.network_name }
+  networks_advanced {
+    name = var.network_name
+    aliases = [ var.db_host ]
+  }
 }
