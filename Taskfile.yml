@@ -48,14 +48,24 @@ tasks:
       - echo "Authenticating with Google Cloud..."
       - gcloud auth application-default login
 
+  docker:inspect_network:
+    vars:
+      NETWORK_NAME: shared_net
+    desc: "Inspect Docker networks"
+    cmds:
+      - echo "Inspecting Docker networks..."
+      - docker network inspect {{.NETWORK_NAME}} || echo "Network '{{.NETWORK_NAME}}' does not exist."
+
   docker:start:
     vars:
       BUILD: '{{.BUILD | default "false"}}'
     desc: "Start Docker containers using Docker Compose"
     cmds:
+      - echo "Creating the external network..."
+      - cd infra && docker network create shared_net || echo "Network 'shared_net' already exists."
       - echo "Starting Docker containers..."
       - |
-        cd infra && docker compose -f docker-compose.airflow.yml -f docker-compose.elt.yml up -d {{if eq .BUILD "true"}}--build{{end}}
+        cd infra && docker compose -p goats-elt -f docker-compose.airflow.yml -f docker-compose.otel.yml -f docker-compose.elt.yml up -d {{if eq .BUILD "true"}}--build{{end}}
 
   docker:start_elt:
     vars:
@@ -64,14 +74,14 @@ tasks:
     cmds:
       - echo "Starting ELT containers..."
       - |
-        cd infra && docker compose -f docker-compose.elt.yml up -d {{if eq .BUILD "true"}}--build{{end}}
+        cd infra && docker compose -p goats-elt -f docker-compose.elt.yml up -d {{if eq .BUILD "true"}}--build{{end}}
 
 
   docker:destroy:
     desc: "Destroy Docker containers using Docker Compose"
     cmds:
       - echo "Destroying Docker containers..."
-      - cd infra && docker compose -f docker-compose.airflow.yml -f docker-compose.elt.yml down --volumes --remove-orphans
+      - cd infra && docker compose -p goats-elt -f docker-compose.airflow.yml -f docker-compose.otel.yml -f docker-compose.elt.yml down --volumes --remove-orphans
 
   docker:destroy_airflow:
     desc: "Destroy Airflow Docker containers using Docker Compose"

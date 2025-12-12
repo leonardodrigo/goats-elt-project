@@ -249,3 +249,7 @@ src/airflow/config/
 *.DS_Store
 # test file
 test.py
+
+# Tempo data directory
+data/tempo/
+infra/tempo-data/
