@@ -1,8 +1,8 @@
 name: goats-elt
 services:
-  postgres:
+  postgres-dwh:
     image: postgres:17.0
-    container_name: postgres
+    container_name: ${POSTGRES_HOST}
     restart: always
     shm_size: 128mb
     environment:
@@ -31,14 +31,14 @@ services:
     ports:
       - '8080:8080'
     depends_on:
-      postgres:
+      postgres-dwh:
         condition: service_healthy
       kafka-init:
         condition: service_completed_successfully
       postgres-init:
         condition: service_completed_successfully
     environment:
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5433/${POSTGRES_DB}
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5433/${POSTGRES_DB}
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -59,6 +59,7 @@ services:
       - BUCKET_NAME=${BUCKET_NAME}
     volumes:
       - ../infra/credentials/service-account.json:/secrets/service-account.json:ro
+      - ../src:/app/src:ro
     networks:
       - elt_internal
       - shared_net  # Communicate with Airflow via HTTP (reverse proxy would be better but this is simpler for now)
@@ -123,7 +124,7 @@ services:
     command:
       - |
         echo "Creating dbt database...";
-        PGPASSWORD=${POSTGRES_PASSWORD} psql -h postgres -U ${POSTGRES_USER} -d postgres -c "CREATE DATABASE dbt;" \
+        PGPASSWORD=${POSTGRES_PASSWORD} psql -h ${POSTGRES_HOST} -U ${POSTGRES_USER} -d postgres -c "CREATE DATABASE dbt;" \
           || echo "Database dbt already exists...";
 
   kafka-ui:

@@ -27,7 +27,7 @@ def schemas_init():
             for schema in Schema:
                 cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {schema.value};")
 
-        logger.info("Schemas verified:", ", ".join(s.value for s in Schema))
+        logger.info("Schemas verified: %s", ", ".join(s.value for s in Schema))
 
 
 def init_bronze_table():
@@ -81,12 +81,12 @@ def insert_raw_data(file_key: str, items: list):
 
 
 def handler(object_name=None, bucket_name=None):
-    with tracer.start_as_current_span("load_db"):
-        tracer.set_attribute("bucket_name", bucket_name)
+    with tracer.start_as_current_span("load_db") as span:
+        span.set_attribute("bucket_name", bucket_name)
         schemas_init()
-        tracer.add_event("Schemas initialized")
+        span.add_event("Schemas initialized")
         init_bronze_table()
-        tracer.add_event("Bronze table initialized")
+        span.add_event("Bronze table initialized")
 
         if bucket_name is None:
             raise ValueError("bucket_name must be provided for GCS")
@@ -94,7 +94,7 @@ def handler(object_name=None, bucket_name=None):
         gcs_client = CloudStorageClient()
         if object_name is None:
             object_name = gcs_client.get_most_recent_gcs_object(bucket_name)
-            tracer.get_current_span().set_attribute("object_name", object_name)
+            span.set_attribute("object_name", object_name)
             if object_name is None:
                 raise ValueError("No files found in the GCS bucket.")
 
@@ -104,7 +104,7 @@ def handler(object_name=None, bucket_name=None):
             data: dict = gcs_client.download_json(bucket_name, object_name)
 
         items = data.get("items", [])
-        tracer.get_current_span().set_attribute("items_count", len(items))
+        span.set_attribute("items_count", len(items))
 
         logger.info("Starting insert raw data")
         insert_raw_data(object_name, items)
